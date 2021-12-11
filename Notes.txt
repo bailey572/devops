@@ -1,3 +1,4 @@
+#Testing my ssh keys on WLS
 #Check Jave version
 java -version
 ****Optional****** 
