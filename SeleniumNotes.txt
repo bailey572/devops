@@ -1,0 +1,30 @@
+locate selenium
+sudo apt install mlocate
+
+sudo apt install python3-pip
+sudo pip install selenium
+
+Downloads
+https://www.google.com/chrome/?brand=CHBF&gclid=ee7e6a414fec1d684c300bfdace03494&gclsrc=3p.ds&utm_source=bing&utm_medium=cpc&utm_campaign=1009936%20%7C%20Chrome%20Win10%20%7C%20DR%20%7C%20ESS01%20%7C%20NA%20%7C%20US%20%7C%20en%20%7C%20Desk%20%7C%20SEM%20%7C%20BKWS%20-%20EXA%20%7C%20Txt&utm_term=download%20chrome&utm_content=Desk%20%7C%20BKWS%20-%20EXA%20%7C%20Txt%20~%20Download
+https://github.com/SeleniumHQ/selenium/releases/download/selenium-4.1.0/selenium-server-4.1.0.jar
+https://www.eclipse.org/downloads/download.php?file=/oomph/epp/2021-12/R/eclipse-inst-jre-linux64.tar.gz
+https://chromedriver.storage.googleapis.com/index.html?path=97.0.4692.36/
+
+package test;
+import java.util.concurrent.TimeUnit;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+public class first {
+	public static void main(String[] args) throws InterruptedException{
+		System.setProperty("webdriver.chrome.driver", "/Path_To_Your_Chrome_Driver");
+		WebDriver driver = new ChromeDriver();
+		driver.manage().window().maximize();
+		driver.manage().deleteAllCookies();
+		driver.manage().timeouts().pageLoadTimeout(40, TimeUnit.SECONDS);
+		driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
+		driver.get("https://login.yahoo.com");
+		driver.findElement(By.xpath("//input[@id='login-username']")).sendKeys("xyzz@yahoo.com");
+	}	
+}
+
