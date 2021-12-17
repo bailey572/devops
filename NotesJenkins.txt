@@ -1,3 +1,10 @@
+from kyle.hewitt@ngc.com to All Participants:
+http://54.154.42.106:8080/github-webhook/
+from kyle.hewitt@ngc.com to All Participants:
+https://www.cprime.com/resources/blog/how-to-integrate-jenkins-github/
+from kyle.hewitt@ngc.com to All Participants:
+mvn archetype:generate -DgroupId=com.mycompany.app -DartifactId=my-app -DarchetypeArtifactId=maven-archetype-quickstart -DarchetypeVersion=1.4 -DinteractiveMode=false
+#Testing my ssh keys on WLS
 #Check Jave version
 java -version
 ****Optional****** 
@@ -7,7 +14,6 @@ sudo apt-get install -y curl openssh-server ca-certificates tzdata perl -y
 sudo apt-get install -y postfix
 curl https://packages.gitlab.com/install/repositories/gitlab/gitlab-ee/script.deb.sh | sudo bash
 sudo apt install gitlab
-
 
 cat /etc/gitlab/initial_root_password
 
