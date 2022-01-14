@@ -1,0 +1,6 @@
+- hosts: webservers
+  become: true
+  tasks:
+  - name: Show running user
+    shell: /usr/bin/whoami
+    become_user: ericbailey
