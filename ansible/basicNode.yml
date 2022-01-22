@@ -1,4 +1,4 @@
-- hosts: webservers
+- hosts: testRunner
   become: true
   tasks:
   - name: Show running user
