@@ -5,7 +5,7 @@ https://www.cprime.com/resources/blog/how-to-integrate-jenkins-github/
 from kyle.hewitt@ngc.com to All Participants:
 mvn archetype:generate -DgroupId=com.mycompany.app -DartifactId=my-app -DarchetypeArtifactId=maven-archetype-quickstart -DarchetypeVersion=1.4 -DinteractiveMode=false
 #Testing my ssh keys on WLS
-#Check Jave version
+#Check Java version
 java -version
 ****Optional****** 
 #Gitlab Setup https://about.gitlab.com/install/#ubuntu
@@ -89,6 +89,6 @@ in order to avoid having to enter your credentials on git every time you do a co
 from kyle.hewitt@ngc.com to All Participants:
 git config --global credential.helper store
 from kyle.hewitt@ngc.com to All Participants:
-Be careful using this though, because it will just save your password as base64 encoded plain text string in your .gitconfig file so its not secure. SSH is always the reccommended whenever possible 
+Be careful using this though, because it will just save your password as base64 encoded plain text string in your .gitconfig file so its not secure. SSH is always the recommended whenever possible 
 
 

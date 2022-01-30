@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testng-results total="1" passed="1" failed="0" skipped="0">
+  <reporter-output>
+  </reporter-output>
+  <suite started-at="2022-01-13T00:10:30Z" name="Default suite" finished-at="2022-01-13T00:10:33Z" duration-ms="2542">
+    <groups>
+    </groups>
+    <test started-at="2022-01-13T00:10:30Z" name="Default test" finished-at="2022-01-13T00:10:33Z" duration-ms="2542">
+      <class name="test.TestNg">
+        <test-method is-config="true" signature="launchBrowser()[pri:0, instance:test.TestNg@7e7be63f]" started-at="2022-01-12T17:10:30Z" name="launchBrowser" finished-at="2022-01-12T17:10:33Z" duration-ms="2364" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- launchBrowser -->
+        <test-method signature="verifyHomepageTitle()[pri:0, instance:test.TestNg@7e7be63f]" started-at="2022-01-12T17:10:33Z" name="verifyHomepageTitle" finished-at="2022-01-12T17:10:33Z" duration-ms="20" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- verifyHomepageTitle -->
+        <test-method is-config="true" signature="terminateBrowser()[pri:0, instance:test.TestNg@7e7be63f]" started-at="2022-01-12T17:10:33Z" name="terminateBrowser" finished-at="2022-01-12T17:10:33Z" duration-ms="148" status="PASS">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- terminateBrowser -->
+      </class> <!-- test.TestNg -->
+    </test> <!-- Default test -->
+  </suite> <!-- Default suite -->
+</testng-results>
