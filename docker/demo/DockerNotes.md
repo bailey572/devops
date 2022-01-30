@@ -1,15 +1,15 @@
 # Notes for basic static web server
 
-## Build a basice NGINX server
+## Build a basic NGINX server
 
 Create the directory and Dockerfile
 ```
 mkdir demo
 cd demo
-touch Docerfile
+touch Dockerfile
 wget 'https://github.com/bailey572/devops/blob/main/docker/demo/index.nginx-debian.html'
 ```
-## Polutate the Dockerfile
+## Populate the Dockerfile
 
 Edit the Dockerfile created earlier with the touch command.
 ```
@@ -29,7 +29,7 @@ The FROM keyboard specifies the based image we will be using. In this case it is
 
 2. RUN apt update
 
-Docker will execute the apt update command as root on the locallly downloaded Ubuntu image using the ***RUN*** command.  The RUN instruction will execute any commands in a new layer on top of the current image and commit the results.
+Docker will execute the apt update command as root on the locally downloaded Ubuntu image using the ***RUN*** command.  The RUN instruction will execute any commands in a new layer on top of the current image and commit the results.
 
 3. RUN apt install -y nginx
 
@@ -61,7 +61,7 @@ docker build -t="bailey572/static_web:v1" .
 This will pull down the ubuntu image and begin executing the commands to build our new docker image.
 The ***-t=*** option is used to specify the new image name.  The ***:v1*** appends a version tag to the image.
 
-If everything went right, you should see similiar output.
+If everything went right, you should see similar output.
 ```
 [+] Building 102.2s (10/10) FINISHED
  => [internal] load build definition from Dockerfile                                                                               0.0s
@@ -90,7 +90,7 @@ If everything went right, you should see similiar output.
 
 If you look closely, you will notice the first four instructions from the Dockerfile along with the creation of the final image.  The last two steps, CMD & EXPOSE, are not part of the build but the configuration and are exercise during the run portion of an instance.
 
-Issueing the docker images command will display all available images including our newly created one.
+Issuing the docker images command will display all available images including our newly created one.
 ```
 $docker images
 REPOSITORY             TAG       IMAGE ID       CREATED         SIZE
@@ -112,7 +112,7 @@ CONTAINER ID   IMAGE          COMMAND                  CREATED              STAT
 c1043d829ae6   ce0fa0135a1f   "/bin/sh -c 'nginx -…"   About a minute ago   Up About a minute   0.0.0.0:60817->80/tcp   static_web
 ```
 
-As you can see, an istance, static_web, is currently running based on our created image named c1043d829ae6, with the nginx command issued to start our web server.
+As you can see, an instance, static_web, is currently running based on our created image named c1043d829ae6, with the nginx command issued to start our web server.
 
 Docker has assigned a port mapping the host network to the running instance, 60817, and mapped it to the containers instance's port 80 we exposed during the image build.
 
@@ -120,7 +120,7 @@ To view the web server in action open a browser and got to http://localhost:6081
 
 ![Screen Capture](./ScreenshotBrowser.png)
 
-To clean up the instance, go ahead and stop and then remove it.  Below is a capture of a console doing a listing, then issueing a stop command, before finally removing it and listing instances again.  Please note, if you just want to stop the instance and run it again later, you can exit at the stop command and later issue a ***docker start static_web*** command.
+To clean up the instance, go ahead and stop and then remove it.  Below is a capture of a console doing a listing, then issuing a stop command, before finally removing it and listing instances again.  Please note, if you just want to stop the instance and run it again later, you can exit at the stop command and later issue a ***docker start static_web*** command.
 
 ```
 $ docker ps -a
