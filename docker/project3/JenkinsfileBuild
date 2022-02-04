@@ -30,12 +30,16 @@ pipeline {
         stage('Push to dockerhub') {
             steps {
                 echo 'Pushing to dockerhub' 
-                
+                script {
+                    docker.withRegistry( '', registryCredential ) {
+                    dockerImage.push()
+                    }
+                }
             }
         }
         stage('Remove Unused docker image') {
             steps{
-                sh "docker rmi $registry:22"
+                sh "docker rmi $registry:$BUILD_NUMBER"
             }
         }
     }
