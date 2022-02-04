@@ -1,7 +1,7 @@
 pipeline {
     environment {
     registry = "bailey572/project3"
-    registryCredential = 'dockerhub'
+    registryCredential = 'docker-hub-credentials'
     dockerImage = "${registry}:26"
     myapp =''
     runCommand = "-t --rm -p 8081:8080 --name webapp"
