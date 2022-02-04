@@ -1,0 +1,46 @@
+pipeline {
+    environment {
+    registry = "bailey572/project3"
+    registryCredential = 'dockerhub'
+    dockerImage = ''
+    }
+    agent any
+    
+    stages {
+        stage('Get the code'){
+            steps {
+                echo 'Pulling the code'
+                git url: 'https://github.com/bailey572/devops.git', branch: 'main'
+            }
+        }
+        stage('Build the code') {
+            steps {
+                echo 'Building the code' 
+                sh "/usr/bin/mvn -f ./docker/project3/webapp/pom.xml  package"
+            }
+        }
+        stage('Build the image') {
+            steps {
+                echo 'Building the docker image'
+                script {
+                    dockerImage = docker.build(registry + ":$BUILD_NUMBER", "./docker/project3")
+                } 
+            }
+        }
+        stage('Push to dockerhub') {
+            steps {
+                echo 'Pushing to dockerhub' 
+                script {
+                    docker.withRegistry( '', registryCredential ) {
+                    dockerImage.push()
+                    }
+                }
+            }
+        }
+        stage('Remove Unused docker image') {
+            steps{
+                sh "docker rmi $registry:$BUILD_NUMBER"
+            }
+        }
+    }
+}

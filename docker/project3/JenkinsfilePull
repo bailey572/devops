@@ -1,0 +1,21 @@
+pipeline {
+    environment {
+    registry = "bailey572/project3"
+    registryCredential = 'dockerhub'
+    dockerImage = ''
+    }
+    agent any
+    
+    stages {
+        stage('Pull Docker image') {
+            steps {
+                echo 'Pulling docker image' 
+            }
+        }
+        stage('Run Instance of the image') {
+            steps {
+                echo 'Run the image with webapp' 
+            }
+        }
+    }
+}
