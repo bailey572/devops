@@ -1,0 +1,21 @@
+version: "1.0"
+services:
+  ansible_server:
+    build: 
+      context: '.'
+      dockerfile: "./server/Dockerfile"
+    secrets:
+      - ssh_keys
+    expose: 
+      - 22
+  ansible_client:
+    build: 
+      context: '.'
+      dockerfile: "./client/Dockerfile"
+    secrets:
+      - ssh_keys
+    expose: 
+      - 22
+secrets:
+  ssh_keys:
+    file: ~/.ssh/id_rsa_shared
