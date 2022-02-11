@@ -46,26 +46,26 @@ sudo cat /var/lib/jenkins/secrets/initialAdminPassword
 Maven Integration
 Git Plugin
 
-#Setup Global Tool Configuration 
-#Maven data
+# Setup Global Tool Configuration 
+# Maven data
 mvn -version
 	Java version: 1.8.0_292, vendor: Private Build
 	Java home: /usr/lib/jvm/java-8-openjdk-amd64/jre
 	Default locale: en_US, platform encoding: UTF-8
 	OS name: "linux", version: "4.4.0-1126-aws", arch: "amd64", family: "unix"
 
-#Manage Jenkin -> Global Tool Configuration
-#Add JDK - do not use install automatically
+# Manage Jenkin -> Global Tool Configuration
+## Add JDK - do not use install automatically
 	Name= local_jdk
 	JAVA_HOME = /usr/lib/jvm/java-8-openjdk-amd64/
-Add Git
+## Add Git
 	name= local_git
 	path= /usr/bin/git
-Add Maven
+## Add Maven
 	name= local_maven
 	path= /usr/share/maven
 ****Optional****** 
-Add Gradle
+## Add Gradle
 	name= local_gradle
 	path= /usr/bin/gradle
 
