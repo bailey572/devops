@@ -1,9 +1,9 @@
 version: "1.0"
 services:
-  ansible_server:
+  ansible_manager:
     build: 
       context: '.'
-      dockerfile: "./server/Dockerfile"
+      dockerfile: "./manager/Dockerfile"
     secrets:
       - ssh_keys
     expose: 
