@@ -73,7 +73,7 @@ ansible-playbook test.yaml
 You should see the execution of our playbook, which first gathers all the facts before executing our task cretaing the /tmp/ansible_was_here file.
 Go ahead and login to the nodes to see they all contain the new file.
 
-### Gathering faact
+### Gathering fact
 
 Interested in all the nodes?  Issue the below command to see what ansible knows or can find out.
 

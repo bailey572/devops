@@ -1,16 +1,18 @@
-# compose-ansible-env
+# Setup Test System
+
+## Compose Ansible Environment
 
 Instead of locally installing ansible for test and evaluation, the below will capture the steps I took to easily setup and interact with an ansible environment as a series of docker containers.
 
-# Environment Setup
+### Environment Setup Target
 
-  - OS: Ubuntu Linux version 20
-  - Architecture: x86_64
-  - Dependencies:
-  -- Docker: version 20
-  -- Docker Compose: version 2.2
+- OS: Ubuntu Linux version 20
+- Architecture: x86_64
+- Dependencies:
+  - Docker: version 20
+  - Docker Compose: version 2.2
 
-# Docker Compose Setup
+### Docker Compose Setup
     version: "1.0"
     services:
     ansible_manager:
@@ -32,11 +34,13 @@ Instead of locally installing ansible for test and evaluation, the below will ca
     secrets:
     ssh_keys:
         file: ~/.ssh/id_rsa_shared
-# Ansible Manager Docker image
 
-# Ansible Client Docker image
+### Ansible Manager Docker image
+ERIC - BEAT YOUR DOCKERFILE AGAINST NATIVE INSTALL
 
-# Run test
+### Ansible Client Docker image
+
+### Run test
 
 Run the docker run command providing:
 - The name of the container to run (<code>ansible_manager</code>)
@@ -49,23 +53,11 @@ Run the docker run command providing:
     docker run -it docker_ansible_manager
 ```
 
-```
- sudo apt install ansible
-Reading package lists... Done
-Building dependency tree       
-Reading state information... Done
-The following additional packages will be installed:
-  python3-argcomplete python3-dnspython python3-jinja2 python3-jmespath python3-kerberos python3-libcloud python3-lockfile python3-ntlm-auth python3-requests-kerberos python3-requests-ntlm python3-selinux python3-winrm
-  python3-xmltodict
-Suggested packages:
-  cowsay sshpass python-jinja2-doc python-lockfile-doc
-The following NEW packages will be installed:
-  ansible python3-argcomplete python3-dnspython python3-jinja2 python3-jmespath python3-kerberos python3-libcloud python3-lockfile python3-ntlm-auth python3-requests-kerberos python3-requests-ntlm python3-selinux
-  python3-winrm python3-xmltodict
-0 upgraded, 14 newly installed, 0 to remove and 0 not upgraded.
-Need to get 7,677 kB of archives.
-After this operation, 77.7 MB of additional disk space will be used.
-Do you want to continue? [Y/n] 
+
+## Setup Docker Network
+
+Take a quick peek to see what networks you currently have.
+
 ```
 docker network ls
 NETWORK ID     NAME                                    DRIVER    SCOPE
@@ -74,4 +66,18 @@ NETWORK ID     NAME                                    DRIVER    SCOPE
 46a0bc5b393c   docker_default                          bridge    local
 b05d1a2dd641   host                                    host      local
 054cc88420e2   none                                    null      local
-ericbailey@CUSTOM-i9:~$ docker network create devnet
+```
+
+Lets create one just for our ansible purpose.
+```
+docker network create devnet
+docker network ls
+docker network inspect devnet
+
+```
+
+### Run our containeres in the new network
+
+```
+docker run -it --rm --network devnet docker_ansible_manager /bin/bash
+```
