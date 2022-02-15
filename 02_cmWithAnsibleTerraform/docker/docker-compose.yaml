@@ -1,21 +1,47 @@
-version: "1.0"
+# --- indicates a new YAML file, not required but a good idea
+---
+# Specify Compose file version  specification in place
+version: "3.3"
+# Define the dictionary of services for compose file
 services:
+  # Define the dictionary for the ansible_manager service
+  # A Service is an abstract definition of a computing resource within an application which can be scaled/replaced independently from other components.
   ansible_manager:
+    # Define the build section to define how to create the manager docker image
     build: 
+      # Define relative path starting location
       context: '.'
+      # Set location of Dockerfile for image build
       dockerfile: "./manager/Dockerfile"
+    # define the list of secrets,denoted by - at same level, grants access to sensitive data defined by secrets on a per-service basis.
     secrets:
       - ssh_keys
+    # define list of exposed ports that Compose implementations MUST expose from container.
     expose: 
       - 22
+    networks:
+      - ansiblenet
   ansible_client:
+  # Define the build section to define how to create the client docker image
     build: 
+      # Define relative path starting location
       context: '.'
+      # Set location of Dockerfile for image build
       dockerfile: "./client/Dockerfile"
+    # define the list of secrets,denoted by - at same level, grants access to sensitive data defined by secrets on a per-service basis.
     secrets:
       - ssh_keys
+    # define list of exposed ports that Compose implementations MUST expose from container.
     expose: 
       - 22
+    networks:
+      - ansiblenet
+# Secrets section of the compose file to define rsa share form local system
 secrets:
+  # Define key value pair services can reference
   ssh_keys:
-    file: ~/.ssh/id_rsa_shared
+    file: ~/.ssh/ansible_id_rsa_shared
+networks:
+  ansiblenet:
+    driver: bridge
+

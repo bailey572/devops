@@ -5,7 +5,7 @@
 ### Install
 
 ```
-sudo apt update; sudo apt upgrage -y; sudo apt isntall ansible -y
+sudo apt update; sudo apt upgrade -y; sudo apt isntall ansible -y
 ```
 
 ### Build Inventory
