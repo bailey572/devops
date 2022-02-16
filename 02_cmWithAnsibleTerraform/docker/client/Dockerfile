@@ -14,11 +14,13 @@ RUN apt update
 RUN apt install openssh-server -y 
 # Install the networking tools.  These are only required for our internal testing.
 RUN apt install iputils-ping net-tools -y
-
-RUN mkdir /var/run/sshd
-RUN echo 'root:screencast' | chpasswd
-RUN sed -i 's/PermitRootLogin without-password/PermitRootLogin yes/' /etc/ssh/sshd_config
-
-# SSH login fix. Otherwise user is kicked off after login
-RUN sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd
-
+# Copy over the configured sshd_config to allow remote root login
+COPY ./client/sshd_config /etc/ssh/
+# Create a directory to hold the authorized keys (i.e. public)
+RUN mkdir /root/.ssh
+#RUN ssh-add ~/.ssh/ansible_id_rsa_shared 
+COPY ./ansible_id_rsa_shared.pub /root/.ssh/authorized_keys
+# Expose port 22 for ssh
+EXPOSE 22
+#  Use the entrypoint to start the ssh service and bash to keep from exiting
+ENTRYPOINT service ssh restart && bash

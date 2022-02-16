@@ -12,10 +12,11 @@ RUN apt install ansible python3-argcomplete python3-dnspython python3-jinja2 pyt
 RUN apt install cowsay sshpass python-jinja2-doc python-lockfile-doc -y
 # Install the networking tools.  These are only required for our internal testing.
 RUN apt install iputils-ping net-tools -y
-#RUN apt install openssh-client gcc python-dev libkrb5-dev -y
-#RUN apt install python3-pip krb5-user -y
-#RUN python3 -m pip install --upgrade pip 
-#RUN pip install --upgrade virtualenv
-#RUN pip install pywinrm[kerberos] 
-#RUN pip install pywinrm
-#RUN apt install ansible -y
+# Ensure openssh-client is up to date
+RUN apt install openssh-client gcc python-dev libkrb5-dev -y
+# Create a directory to hold the private key 
+RUN mkdir /root/.ssh
+#COPY ./ansible_id_rsa_shared.pub /root/.ssh/id_rsa.pub
+# Copy over the private key to the ansible manager to connect to client ssh server
+COPY ./ansible_id_rsa_shared /root/.ssh/id_rsa
+
