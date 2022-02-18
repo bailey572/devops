@@ -201,7 +201,7 @@ Run the docker run command providing:
  
  ```   
     docker-compose run ansible_manager -i -t ubuntu
-    docker run -it docker_ansible_manager
+    docker run --rm --name ansible_manger -it docker_ansible_manager
 ```
 
 

@@ -16,7 +16,9 @@ RUN apt install iputils-ping net-tools -y
 RUN apt install openssh-client gcc python-dev libkrb5-dev -y
 # Create a directory to hold the private key 
 RUN mkdir /root/.ssh
-#COPY ./ansible_id_rsa_shared.pub /root/.ssh/id_rsa.pub
-# Copy over the private key to the ansible manager to connect to client ssh server
-COPY ./ansible_id_rsa_shared /root/.ssh/id_rsa
-
+# disable StrictHostKeyChecking to automatically add remotehost to the images known hosts
+RUN echo "Host remotehost\n\tStrictHostKeyChecking no\n" >> /root/.ssh/config
+# Copy key to image. CMD sets default that can be modified when container runs
+COPY ./ansible_keys/ansible_id_rsa_shared.priv /root/.ssh/id_rsa
+# Ensure the permissions are correct
+RUN chmod -R 600 /root/.ssh

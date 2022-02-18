@@ -14,8 +14,8 @@ services:
       # Set location of Dockerfile for image build
       dockerfile: "./manager/Dockerfile"
     # define the list of secrets,denoted by - at same level, grants access to sensitive data defined by secrets on a per-service basis.
-    secrets:
-      - id_rsa
+    #secrets:
+      #- id_rsa
     # define list of exposed ports that Compose implementations MUST expose from container.
     expose: 
       - 22
@@ -29,26 +29,26 @@ services:
       # Set location of Dockerfile for image build
       dockerfile: "./client/Dockerfile"
     # Define a volume to gain access to the init script
-    volumes: 
-      - ./client/init.sh:/init.sh
+    #volumes: 
+      #- ./client/init.sh:/init.sh
     # Execute the init script to insert keys
     #  command: sh "mkdir -p /root/.ssh; sh ssh-add -k /run/secrets/id_rsa; service ssh start"
     #command: sh "ssh-add /run/secrets/id_rsa"
     #command: sh init.sh
     # define the list of secrets,denoted by - at same level, grants access to sensitive data defined by secrets on a per-service basis.
-    secrets:
-      - id_rsa
+    #secrets:
+      #- id_rsa
     # define list of exposed ports that Compose implementations MUST expose from container.
     expose: 
       - 22
-    
+    # assign to ansible network
     networks:
       - ansiblenet
 # Secrets section of the compose file to define rsa share form local system
-secrets:
+#secrets:
   # Define key value pair services can reference
-  id_rsa:
-    file: ~/.ssh/ansible_id_rsa_shared
+ #id_rsa:
+    #file: ~/.ssh/ansible_id_rsa_shared
 networks:
   ansiblenet:
     driver: bridge
