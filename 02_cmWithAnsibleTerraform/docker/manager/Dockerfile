@@ -12,11 +12,24 @@ RUN apt install ansible python3-argcomplete python3-dnspython python3-jinja2 pyt
 RUN apt install cowsay sshpass python-jinja2-doc python-lockfile-doc -y
 # Ensure openssh-client is up to date
 RUN apt install openssh-client gcc python-dev libkrb5-dev -y
+# Install the openssh-server for local ansible calls to manager
+RUN apt install openssh-server -y 
+# Since we have an sshd we need to cofigure it, for now we will steal the client version
+# Copy over the configured sshd_config to allow remote root login
+COPY ./client/sshd_config /etc/ssh/
+# Copy over the configured ansible_hosts file to expose the inventory
+COPY ./manager/ansible_hosts /etc/ansible/hosts
 # Create a directory to hold the private key 
 RUN mkdir /root/.ssh
 # disable StrictHostKeyChecking to automatically add remotehost to the images known hosts
 RUN echo "Host remotehost\n\tStrictHostKeyChecking no\n" >> /root/.ssh/config
-# Copy key to image. CMD sets default that can be modified when container runs
+# Copy private key to image. CMD sets default that can be modified when container runs
 COPY ./ansible_keys/ansible_id_rsa_shared.priv /root/.ssh/id_rsa
+# Copy public key to image for ansible connects
+COPY ./ansible_keys/ansible_id_rsa_shared.pub /root/.ssh/authorized_keys
+# Expose port 22 for ssh even for local ansible runs
+EXPOSE 22
 # Ensure the permissions are correct
 RUN chmod -R 600 /root/.ssh
+#  Use the entrypoint to start the ssh service and bash to keep from exiting
+ENTRYPOINT service ssh restart && bash

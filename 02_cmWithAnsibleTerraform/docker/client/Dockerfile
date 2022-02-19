@@ -12,8 +12,8 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt update 
 # Install the openssh-server
 RUN apt install openssh-server -y 
-# Install the networking tools.  These are only required for our internal testing.
-RUN apt install iputils-ping net-tools -y
+# Install these packages for a functional ansible runs
+RUN apt install python -y
 # Copy over the configured sshd_config to allow remote root login
 COPY ./client/sshd_config /etc/ssh/
 # Create a directory to hold the authorized keys (i.e. public)
