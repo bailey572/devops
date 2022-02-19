@@ -6,10 +6,10 @@ LABEL maintainer=bailey572@msn.com
 ENV DEBIAN_FRONTEND=noninteractive
 # Start by initiating an update of the repositorires
 RUN apt update 
-# Install these packages for a functional ansible (will not depend on auto dependencies)
-RUN apt install ansible python3-argcomplete python3-dnspython python3-jinja2 python3-jmespath python3-kerberos python3-libcloud python3-lockfile python3-ntlm-auth python3-requests-kerberos python3-requests-ntlm python3-selinux python3-winrm python3-xmltodict -y
-# Install optional ansible packages for completeness
-RUN apt install cowsay sshpass python-jinja2-doc python-lockfile-doc -y
+# Install these packages for a functional ansible
+RUN apt install software-properties-common -y
+RUN add-apt-repository --yes --update ppa:ansible/ansible
+RUN apt install ansible -y
 # Ensure openssh-client is up to date
 RUN apt install openssh-client gcc python-dev libkrb5-dev -y
 # Install the openssh-server for local ansible calls to manager

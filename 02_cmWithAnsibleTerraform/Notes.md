@@ -50,7 +50,7 @@ ListenAddress ::
 # Allow client to pass locale environment variables
 AcceptEnv LANG LC_*
 # override default of no subsystems
-Subsystem	sftp	/usr/lib/openssh/sftp-server
+Subsystem sftp /usr/lib/openssh/sftp-server
 ```
 
 This file will be placed withing our client image through the Dockerfile in a later step.
@@ -176,7 +176,7 @@ Please note: there are many additional options such as
 - target defines the stage to build as defined inside a multi-stage Dockerfile.
 - deploy section groups these constraints and allows the platform to adjust the deployment strategy.
 - blkio_config defines a set of configuration options to set block IO limits for this service.
-- configs grant access to configs on a per-service basis using the per-service configs configuration. 
+- configs grant access to configs on a per-service basis using the per-service configs configuration.
 - depends_on expresses startup and shutdown dependencies between services.
 - devices defines a list of device mappings for created containers in the form of HOST_PATH:CONTAINER_PATH[:CGROUP_PERMISSIONS].
 - dns defines custom DNS servers to set on the container network interface configuration. Can be a single value or a list.
@@ -200,22 +200,33 @@ LABEL maintainer=bailey572@msn.com
 ENV DEBIAN_FRONTEND=noninteractive
 # Start by initiating an update of the repositorires
 RUN apt update 
-# Install these packages for a functional ansible (will not depend on auto dependencies)
-RUN apt install ansible python3-argcomplete python3-dnspython python3-jinja2 python3-jmespath python3-kerberos python3-libcloud python3-lockfile python3-ntlm-auth python3-requests-kerberos python3-requests-ntlm python3-selinux python3-winrm python3-xmltodict -y
-# Install optional ansible packages for completeness
-RUN apt install cowsay sshpass python-jinja2-doc python-lockfile-doc -y
+# Install these packages for a functional ansible
+RUN apt install software-properties-common -y
+RUN add-apt-repository --yes --update ppa:ansible/ansible
+RUN apt install ansible -y
 # Ensure openssh-client is up to date
 RUN apt install openssh-client gcc python-dev libkrb5-dev -y
+# Install the openssh-server for local ansible calls to manager
+RUN apt install openssh-server -y 
+# Since we have an sshd we need to cofigure it, for now we will steal the client version
+# Copy over the configured sshd_config to allow remote root login
+COPY ./client/sshd_config /etc/ssh/
 # Copy over the configured ansible_hosts file to expose the inventory
 COPY ./manager/ansible_hosts /etc/ansible/hosts
 # Create a directory to hold the private key 
 RUN mkdir /root/.ssh
 # disable StrictHostKeyChecking to automatically add remotehost to the images known hosts
 RUN echo "Host remotehost\n\tStrictHostKeyChecking no\n" >> /root/.ssh/config
-# Copy key to image. CMD sets default that can be modified when container runs
+# Copy private key to image. CMD sets default that can be modified when container runs
 COPY ./ansible_keys/ansible_id_rsa_shared.priv /root/.ssh/id_rsa
+# Copy public key to image for ansible connects
+COPY ./ansible_keys/ansible_id_rsa_shared.pub /root/.ssh/authorized_keys
+# Expose port 22 for ssh even for local ansible runs
+EXPOSE 22
 # Ensure the permissions are correct
 RUN chmod -R 600 /root/.ssh
+#  Use the entrypoint to start the ssh service and bash to keep from exiting
+ENTRYPOINT service ssh restart && bash
 ```
 
 #### Test build of the Ansible Manager Image
@@ -239,10 +250,10 @@ Run the docker run command providing:
 - The --rm flag to remove the conatiner on exit
 - The --net flag to specify the network we are going to use
 - The --name flag to specify the name of the container
-- The name of the container to run (<code>ansible_manager</code>)
+- The name of the container to run (```ansible_manager```)
 - The i flag indicating you’d like to open an interactive SSH session to - the container. The i flag does not close the SSH session even if the - container is not attached.
 - The t flag allocates a pseudo-TTY which much be used to run commands interactively.
-- The base image to create the container from (<code>docker_ansible_manager</code>).
+- The base image to create the container from (```docker_ansible_manager```).
 
 ```bash
 docker run --rm --net=ansible-net --name ansible_manger -it docker_ansible_manager
@@ -262,10 +273,6 @@ Note: We will need another console opened in order to build and start the client
 Use the below template to populate the Dockerfile for the ansible_client service.
 
 ```yaml
-FROM ubuntu:18.04
-
-ENV DEBIAN_FRONTEND=noninteractive
-
 # Base manager off of official ubuntu v18.04 image
 FROM ubuntu:18.04
 # Identify the maintainer of custom image
@@ -276,8 +283,8 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt update 
 # Install the openssh-server
 RUN apt install openssh-server -y 
-# Install the networking tools.  These are only required for our internal testing.
-RUN apt install iputils-ping net-tools -y
+# Install these packages for a functional ansible runs
+RUN apt install python3 -y
 # Copy over the configured sshd_config to allow remote root login
 COPY ./client/sshd_config /etc/ssh/
 # Create a directory to hold the authorized keys (i.e. public)
@@ -315,10 +322,10 @@ Run the docker run command providing:
 - The --rm flag to remove the conatiner on exit
 - The --net flag to specify the network we are going to use
 - The --name flag to specify the name of the container
-- The name of the container to run (<code>ansible_node</code>)
+- The name of the container to run (```ansible_node```)
 - The i flag indicating you’d like to open an interactive SSH session to - the container. The i flag does not close the SSH session even if the - container is not attached.
 - The t flag allocates a pseudo-TTY which much be used to run commands interactively.
-- The base image to create the container from (<code>docker_ansible_client</code>).
+- The base image to create the container from (```docker_ansible_client```).
 
 ```bash
 docker run --rm --net=ansible-net --name ansible_node -it docker_ansible_client
@@ -392,7 +399,7 @@ ansible-inventory --list
 
 This will give a listing of all items in our inventory and the foundation group we defined.  They should be identical at this point.
 
-To see just the known hosts use ``` ansible all  --list-hosts```
+To see just the known hosts use ```ansible all  --list-hosts```
 
 Starting out, we will pass linux commands directly to the target system through the ansible service by upsurping the -a (MODULE_ARGS) flag and invoking default ansible 'command' module.  
 
@@ -405,7 +412,14 @@ ansible ansible_client -a "ls -al"                      # verify that the file i
 ansible ansible_client -a "chmod 666 ansible_was_here"  # change file persmissions
 ansible ansible_client -a "ls -al"                      # verify -rw-rw-rw-
 ```
-ansible ansible_client -m ansible.builtin.file -a "dest=module_was_here mode=666"
+
+The above operation could have also been done through Ansibles file module directly from the command line.
+
+```bash
+ansible ansible_client -m ansible.builtin.file -a "path=test.txt state=touch mode=666"
+ansible ansible_client -a "ls -al"
+```
+
 Most Linux commands can be passed in this way but is far from ideal.  Best practices revolve around the creation of playbooks leveraging modules.
 
 - Playbooks are configuration files containing parameters to feed modules
@@ -414,14 +428,60 @@ Most Linux commands can be passed in this way but is far from ideal.  Best pract
 Ansible provides a large collection of modules that simplify these operations that are more portable and safer.  For example, to execute the same file IO operation as above, lets see how this would work using the 'file' module.
 
 Before we begin, go ahead and install a text editor ```apt install nano```
-Edit the ansible configuration file ```nano /etc/ansible/ansible.cfg```
-Set the following defaults
+
+From the ansible_manager node, let's create our first playbook to repeat the file creation.
 
 ```bash
-inventory      = /etc/ansible/hosts
-library        = /usr/lib/python2.7/dist-packages/ansible/modules
-module_utils   = /usr/lib/python2.7/dist-packages/ansible/module_utils
+nano /etc/ansible/playbook.yaml
 ```
 
-From the ansible_manager, create a file 
-ansible ansible_client -m ansible.builtin.file -a "dest=/srv/foo/a.txt mode=666"
+and populate it with the following content
+
+```yaml
+- hosts: ansible_client
+  tasks:
+  - name: Creating an empty file
+    file:
+      path: "/root/playbookTest.txt"
+      state: touch
+      mode: 0666
+    tags:
+      - create
+```
+
+Executes our playbook and verify the results with the following commands.
+
+```bash
+ansible-playbook /etc/ansible/playbook.yaml
+ansible ansible_client -a "ls -al /root"
+```
+
+To remove the newly created file, update the playbook file with the following content.
+
+```yaml
+- hosts: ansible_client
+  tasks:
+  - name: Creating an empty file
+    file:
+      path: "/root/playbookTest.txt"
+      state: touch
+      mode: 0666
+    tags:
+      - create
+  # Add the following
+  - name: Remove an empty file
+    file:
+      path: "/root/playbookTest.txt"
+      state: absent
+    tags:
+      - delete
+```
+
+This time we are going to execute just a single task 'delete' based on the tag name.
+
+```bash
+ansible-playbook /etc/ansible/playbook.yaml --tags "delete"
+ansible ansible_client -a "ls -al /root"
+```
+
+Please note, you were to run the playbook again, without the --tag specifier, you would run both tasks sequentially.  Meaning you would creat the file, set its permissions, and then immediately delete it.

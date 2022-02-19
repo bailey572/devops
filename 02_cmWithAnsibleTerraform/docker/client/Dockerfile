@@ -1,7 +1,3 @@
-FROM ubuntu:18.04
-
-ENV DEBIAN_FRONTEND=noninteractive
-
 # Base manager off of official ubuntu v18.04 image
 FROM ubuntu:18.04
 # Identify the maintainer of custom image
@@ -13,7 +9,7 @@ RUN apt update
 # Install the openssh-server
 RUN apt install openssh-server -y 
 # Install these packages for a functional ansible runs
-RUN apt install python -y
+RUN apt install python3 -y
 # Copy over the configured sshd_config to allow remote root login
 COPY ./client/sshd_config /etc/ssh/
 # Create a directory to hold the authorized keys (i.e. public)
