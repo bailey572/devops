@@ -10,8 +10,6 @@ RUN apt update
 RUN apt install ansible python3-argcomplete python3-dnspython python3-jinja2 python3-jmespath python3-kerberos python3-libcloud python3-lockfile python3-ntlm-auth python3-requests-kerberos python3-requests-ntlm python3-selinux python3-winrm python3-xmltodict -y
 # Install optional ansible packages for completeness
 RUN apt install cowsay sshpass python-jinja2-doc python-lockfile-doc -y
-# Install the networking tools.  These are only required for our internal testing.
-RUN apt install iputils-ping net-tools -y
 # Ensure openssh-client is up to date
 RUN apt install openssh-client gcc python-dev libkrb5-dev -y
 # Create a directory to hold the private key 

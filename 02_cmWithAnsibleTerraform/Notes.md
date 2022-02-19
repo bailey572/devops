@@ -12,27 +12,84 @@ Instead of locally installing ansible for test and evaluation, the below will ca
   - Docker: version 20
   - Docker Compose: version 2.2
 
+### Create our Compose environment
+
+To get started, we are going to create a series of directories and files to keep things in order.  To begin, create an empty directory for this project.
+``` mkdir [PROJECT NAME] ```
+Change directory into this directory and then go ahead and create the following layout.
+```
+mkdir ansible_keys client manager
+touch ./client/sshd_config
+touch ./client/Dockerfile
+touch ./manager/Dockerfile
+```
+
+### Populate SSH daemon configuration
+In order to keep life simple and have our clients accept incoming SSH requests, we will need to configure the service to do so.  Populate the previously created ./client/sshd_config file with the folliwing content.
+```
+# Allow for passwordless authentication
+PasswordAuthentication no
+# Permit root to login
+PermitRootLogin without-password
+# Use public key authentication (RSA in our test case)
+PubkeyAuthentication yes
+# Listen on port 22 for incoming connections
+Port 22
+# Open up to any address (Not safe in the real world)
+AddressFamily any
+# Answer on any address (Againg not safe in the real world)
+ListenAddress 0.0.0.0
+ListenAddress ::
+# Allow client to pass locale environment variables
+AcceptEnv LANG LC_*
+# override default of no subsystems
+Subsystem	sftp	/usr/lib/openssh/sftp-server
+```
+This file will be placed withing our client image through the Dockerfile in a later step.
+
 ### Generate ssh keys
 
-If they do not already exist, you will need to gereneate RSA keys and then share the public portion with each node to enable login without having to supply a password.  For the docker container clients, these will be inserted through the compose file during build. 
+Because we are doing a very unsafe practice of dumping keys into the images themselves, you will need to gereneate RSA keys.  We will then copy the private key into the Manager image and the public portion within each node to enable login without having to supply a password.
+For the docker manager and client container, these will be inserted through their respective Dockerfiles during build.
 
 To gerenate new keys, issue the following command.
 ```
 ssh-keygen
 ```
 
-When prompted change file name from default from id_rsa to something memorable, such as ~/.ssh/ansible_id_rsa_shared.
-Note: if you choose a different name, that name will need to be updated in the compose file template below.
+When prompted change file name from the default to something memorable and store in the previously defined ansible_keys directory, si [FullyQaulifiedPathOfYourProjectDirectory]/ansible_keys/ansible_id_rsa_shared.
 Provide a passphrase for extra security or leave blank.
 
+Note: If you choose a different name, that name will need to be updated in the the Dockerfile templates below and the keys must be in the local context of the Project directory to be copied in.
+
+For my own sanity, I appended .priv to my private key to make it apparant which was private and which was public.  Hint, Private key goes on the manager, Public goes on the clients.
+
+### Define our network
+
+Take a look at your current environment an see what docker networks have been defined with the following command.
+```
+docker network ls
+```
+For our test system, we are going to run our containers in the ansible-net.  To create this network, issue the following command.
+```
+docker network create ansible-net
+``` 
+To remove unwanted docker networks use the command.  Do not remove the bridge or host networks.
+```
+docker network rm [NETWORK ID]
+```
+To get more information about the newly created docker network, issued the following command.
+```
+docker network inspect ansible-net
+```
 ### Docker Compose Setup
 
 Use the below template to populate the docker-compose file.
 ```
 # --- indicates a new YAML file, not required but a good idea
 ---
-# Assign an internal version number for the compose as a key/value pair
-version: "1.0"
+# Specify Compose file version  specification in place
+version: "3.3"
 # Define the dictionary of services for compose file
 services:
   # Define the dictionary for the ansible_manager service
@@ -44,12 +101,14 @@ services:
       context: '.'
       # Set location of Dockerfile for image build
       dockerfile: "./manager/Dockerfile"
-    # define the list of secrets,denoted by - at same level, grants access to sensitive data defined by secrets on a per-service basis.
-    secrets:
-      - ssh_keys
     # define list of exposed ports that Compose implementations MUST expose from container.
     expose: 
       - 22
+    networks:
+      - ansible-net
+    # Tell compose to keep containers running interactive and with a tty
+    stdin_open: true # docker run -i (interactive)
+    tty: true        # docker run -t (tty)
   ansible_client:
   # Define the build section to define how to create the client docker image
     build: 
@@ -57,17 +116,19 @@ services:
       context: '.'
       # Set location of Dockerfile for image build
       dockerfile: "./client/Dockerfile"
-    # define the list of secrets,denoted by - at same level, grants access to sensitive data defined by secrets on a per-service basis.
-    secrets:
-      - ssh_keys
     # define list of exposed ports that Compose implementations MUST expose from container.
     expose: 
       - 22
-# Secrets section of the compose file to define rsa share form local system
-secrets:
-  # Define key value pair services can reference
-  ssh_keys:
-    file: ~/.ssh/ansible_id_rsa_shared
+    # assign to ansible network
+    networks:
+      - ansible-net
+    # Tell compose to keep containers running interactive and with a tty
+    stdin_open: true # docker run -i (interactive)
+    tty: true        # docker run -t (tty)
+
+networks:
+  ansible-net:
+    driver: bridge
 ```
 Please note: there are many additional options such as
 - target defines the stage to build as defined inside a multi-stage Dockerfile.
@@ -99,9 +160,19 @@ RUN apt update
 RUN apt install ansible python3-argcomplete python3-dnspython python3-jinja2 python3-jmespath python3-kerberos python3-libcloud python3-lockfile python3-ntlm-auth python3-requests-kerberos python3-requests-ntlm python3-selinux python3-winrm python3-xmltodict -y
 # Install optional ansible packages for completeness
 RUN apt install cowsay sshpass python-jinja2-doc python-lockfile-doc -y
+# Ensure openssh-client is up to date
+RUN apt install openssh-client gcc python-dev libkrb5-dev -y
+# Create a directory to hold the private key 
+RUN mkdir /root/.ssh
+# disable StrictHostKeyChecking to automatically add remotehost to the images known hosts
+RUN echo "Host remotehost\n\tStrictHostKeyChecking no\n" >> /root/.ssh/config
+# Copy key to image. CMD sets default that can be modified when container runs
+COPY ./ansible_keys/ansible_id_rsa_shared.priv /root/.ssh/id_rsa
+# Ensure the permissions are correct
+RUN chmod -R 600 /root/.ssh
 ```
 #### Test build of the Ansible Manager Image
-Execute the build step through docker compose with the following command
+Execute the build step through docker compose with the following command.  Please note that you must be the directory that contains the docker-compose.yaml file or use the -f option to point to it.
 ```
 docker-compose build ansible_manager
 ```
@@ -112,6 +183,7 @@ docker images
 #### Test execution of the Ansible Manager Container
 Run the docker run command providing:
 - The --rm flag to remove the conatiner on exit
+- The --net flag to specify the network we are going to use
 - The --name flag to specify the name of the container
 - The name of the container to run (<code>ansible_manager</code>)
 - The i flag indicating you’d like to open an interactive SSH session to - the container. The i flag does not close the SSH session even if the - container is not attached.
@@ -119,15 +191,17 @@ Run the docker run command providing:
 - The base image to create the container from (<code>docker_ansible_manager</code>).
  
 ```       
-docker run --rm --name ansible_manger -it docker_ansible_manager
+docker run --rm --net=ansible-net --name ansible_manger -it docker_ansible_manager
 ```
 Success will provide a root level command prompt where you can verify the existence of ansible by issueing the following command.
 ```
 ansible --version
 ```
-Type exit and press enter to return to your native shell and continue.
+Go ahead and leave this window open as we will be coming back to it once we have the client up and running.
+Note: We will need another console opened in order to build and start the client container.
 
 ### Ansible Client Docker image
+
 Use the below template to populate the Dockerfile for the ansible_client service.
 ```
 FROM ubuntu:18.04
@@ -140,13 +214,31 @@ FROM ubuntu:18.04
 LABEL maintainer=bailey572@msn.com
 # Specify zero interactions are required during installation/upgrades (uses default answers)
 ENV DEBIAN_FRONTEND=noninteractive
-# Start by initiating an update of the repositorires
+# Start by initiating an update of the repositorires (RUN always executes the command on the image)
 RUN apt update 
-# Update the openssh-client
-RUN apt install openssh-client -y 
+# Install the openssh-server
+RUN apt install openssh-server -y 
+# Install the networking tools.  These are only required for our internal testing.
+RUN apt install iputils-ping net-tools -y
+# Copy over the configured sshd_config to allow remote root login
+COPY ./client/sshd_config /etc/ssh/
+# Create a directory to hold the authorized keys (i.e. public)
+RUN mkdir /root/.ssh
+# disable StrictHostKeyChecking to automatically add remotehost to the images known hosts
+RUN echo "Host remotehost\n\tStrictHostKeyChecking no\n" >> /root/.ssh/config
+# Copy key to image. CMD sets default that can be modified when container runs
+COPY ./ansible_keys/ansible_id_rsa_shared.pub /root/.ssh/authorized_keys
+# Expose port 22 for ssh
+EXPOSE 22
+# Ensure the permissions are correct
+RUN chmod -R 600 /root/.ssh
+#  Use the entrypoint to start the ssh service and bash to keep from exiting
+ENTRYPOINT service ssh restart && bash
 ```
+
 #### Test build of the Ansible Client Image
-Execute the build step through docker compose with the following command
+
+From the second terminal, execute the build step through docker compose with the following command.  Again, you must be in the directory that contains the docker-compose.yaml file or use the -f option.
 ```
 docker-compose build ansible_client
 ```
@@ -157,6 +249,7 @@ docker images
 #### Test execution of the Ansible Client Container
 Run the docker run command providing:
 - The --rm flag to remove the conatiner on exit
+- The --net flag to specify the network we are going to use
 - The --name flag to specify the name of the container
 - The name of the container to run (<code>ansible_node</code>)
 - The i flag indicating you’d like to open an interactive SSH session to - the container. The i flag does not close the SSH session even if the - container is not attached.
@@ -164,71 +257,33 @@ Run the docker run command providing:
 - The base image to create the container from (<code>docker_ansible_client</code>).
  
 ```       
-docker run --rm --name ansible_node -it docker_ansible_client
+docker run --rm --net=ansible-net --name ansible_node -it docker_ansible_client
 ```
-Success will provide a root level command prompt where you can verify the containers hostname by issueing the following command.
+Success will provide a root level command prompt where you can verify the containers IP address by issueing the following command.
 ```
-hostname
+hostname -i
 ```
 Do NOT exit the node container at this time.
 
 ## Test the connection between the Manger and Node
-Open and new terminal window and issue the following command to initiate the manager node
+Return to the open terminal window containing the running manager container and verify that you can indeed ssh into the client without having to supply an password.
 ```
-docker run --rm --name ansible_manger -it docker_ansible_manager
-This is where I stopped still need to service ssh start on client and determine access pwd
+ssh [IP ADDRESS of CLIENT]
+or
+ssh [HOSTNAME of CLIENT]
 ```
-From the manager command line, test password less ssh from the manager to the node through ssh by providing:
-- the nodes host name
+Both the IP address and the hostname will work due to the built in DNS capapbilty of docker and the fact that they are both running on the same virtual network, ansible-net.
+Go ahead and exit both the client and the manager instances.  Because of the earlier run commands with --rm flage, the coontainers will automatically be removed.
+
+## Spinning everything up the easy way
+Now that we know it all works, we can leverage the docker-compose file to spin up our containers and even apply the defined host names.  To get started, issue the following command from within the directory containing the docker-compose.yaml file.
+``` docker-compose up ```
+This will bring up both the client and the manager.  Use the exec command to attach to the manager instance and verify the hostname of the manager, passwordless ssh to the client, and the clients hostname with the following commands.
 ```
-ssh HOSTNAME
+docker ps  # To get the name of the manager container
+# Should be docker-ansible_manager-1 but will increment if multiple instances are running
+docker exec -it docker-ansible_manager-1 /bin/bash         # -it = interactive TTY bash shell
+hostname                                                   # should be ansible_manager
+ssh ansible_client                                         # prompt should now be ansible_client
 ```
-
-Type exit and press enter to return to your native shell and continue.
-
-
-
-
-
-
-### Run test
-
-Run the docker run command providing:
-- The name of the container to run (<code>ansible_manager</code>)
-- The i flag indicating you’d like to open an interactive SSH session to - the container. The i flag does not close the SSH session even if the - container is not attached.
-- The t flag allocates a pseudo-TTY which much be used to run commands interactively.
-- The base image to create the container from (<code>ubuntu</code>).
- 
- ```   
-    docker-compose run ansible_manager -i -t ubuntu
-    docker run --rm --name ansible_manger -it docker_ansible_manager
-```
-
-
-## Setup Docker Network
-
-Take a quick peek to see what networks you currently have.
-
-```
-docker network ls
-NETWORK ID     NAME                                    DRIVER    SCOPE
-6e19991cef97   bridge                                  bridge    local
-716ed3d7926e   compose-dev-env-nifty_lamport_default   bridge    local
-46a0bc5b393c   docker_default                          bridge    local
-b05d1a2dd641   host                                    host      local
-054cc88420e2   none                                    null      local
-```
-
-Lets create one just for our ansible purpose.
-```
-docker network create devnet
-docker network ls
-docker network inspect devnet
-
-```
-
-### Run our containeres in the new network
-
-```
-docker run -it --rm --network devnet docker_ansible_manager /bin/bash
-```
+Congradulations, you now have a client and manager setup and ready to play with ansible commands.  Exit out of the container and issue the ``` docker-compose down ``` command to clean up the containers.
