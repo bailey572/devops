@@ -485,3 +485,10 @@ ansible ansible_client -a "ls -al /root"
 ```
 
 Please note, you were to run the playbook again, without the --tag specifier, you would run both tasks sequentially.  Meaning you would creat the file, set its permissions, and then immediately delete it.
+
+
+Interested in all the nodes?  Issue the below command to see what ansible knows or can find out.
+
+```
+ansible all -m ansible.builtin.setup | less
+```
