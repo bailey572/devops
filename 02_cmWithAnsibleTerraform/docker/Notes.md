@@ -484,11 +484,55 @@ ansible-playbook /etc/ansible/playbook.yaml --tags "delete"
 ansible ansible_client -a "ls -al /root"
 ```
 
-Please note, you were to run the playbook again, without the --tag specifier, you would run both tasks sequentially.  Meaning you would creat the file, set its permissions, and then immediately delete it.
-
+Please note, if you were to run the playbook again, without the --tag specifier, you would run both tasks sequentially.  Meaning you would creat the file, set its permissions, and then immediately delete it.
 
 Interested in all the nodes?  Issue the below command to see what ansible knows or can find out.
 
-```
+```bash
 ansible all -m ansible.builtin.setup | less
 ```
+
+## Docker Clean Up
+
+This might also be a good time to mention cleanup.
+
+Clean up docker-compose items
+
+```bash
+docker-compose down -v --rmi all --remove-orphans
+```
+
+List any containers out there
+
+```bash
+docker ps -a -q 
+```
+
+ps -a is your friend. It lists all container identifiers, and only them in a nice list.  Although just the -a option is pretty nice too.
+
+Remove any stray containers that may have been found.
+
+```bash
+docker rm -v $(docker ps -aq -f 'status=exited')
+```
+
+Remove any image strays
+
+```bash
+docker rm -v $(docker ps -aq -f 'status=exited')
+```
+
+A really new neat way to do the above is with
+
+```bash
+docker system prune
+```
+
+Be warned, this will remove:
+
+- all stopped containers
+- all networks not used by at least one container
+- all dangling images
+- all dangling build cache
+
+p.s. all of the above steps work on native Linux and Windows WSL.
