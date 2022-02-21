@@ -4,7 +4,7 @@ My original intent was to work through a series of practice labs that had been a
 
 ## Spin up test system
 
-If you would like to follow along, I would suggest grabbing the docker-compose based setup to spin up a test system.  Notes for the project are located in the[Notes.md](https://github.com/bailey572/devops/blob/main/02_cmWithAnsibleTerraform/docker/Notes.md).  If you are accessing these locally from a github checkout, they are located in the root 02_cmWithAnsible/docker folder.  I highly suggest reading through them but if not, here is a quick start needed to get started.
+If you would like to follow along, I would suggest grabbing the docker-compose based setup to spin up a test system.  Notes for the project are located in the [Notes.md](https://github.com/bailey572/devops/blob/main/02_cmWithAnsibleTerraform/docker/Notes.md).  If you are accessing these locally from a github checkout, they are located in the root 02_cmWithAnsible/docker folder.  I highly suggest reading through them but if not, here is a quick start needed to get started.
 Open a terminal folder and navigate to the 02_cmWithAnsible/docker folder and issue the following commands.
 
 ```bash
@@ -70,6 +70,7 @@ Calls the ansible executable with the following arguments.
 # First Play book
 
 If not already done, install the nano text editor ```apt install nano```
+
 ```bash
 nano /etc/ansible/playbook.yaml
 ```
@@ -134,10 +135,13 @@ ansible all -m ansible.builtin.setup | less
 
 ## Section 1, Lab 2 YAML Scripting 
 ### Create play book
+
 ```yaml
 nano node.yml
 ```
+
 ### Populate
+
 ```yaml
 - hosts: webservers
   become: true
@@ -157,20 +161,29 @@ nano node.yml
     become: true
     apt: name=nodejs
 ```
+
 ### Open firewall
+
 ```bash
 sudo ufw allow 42006/tcp
 ```
+
 ### Run the playbook
+
 ```bash
 ansible-playbook node.yml -k -K
 ```
+
 ## Section 1, Lab 3 Apache Web server
+
 ### Create play book
+
 ```bash
 nano apache2.yaml
 ```
+
 ### Populate
+
 ```yaml
 - hosts: webservers
   become: true
@@ -188,9 +201,8 @@ nano apache2.yaml
       service: name=apache2 state=restarted
 ```
 
-
-
 ## Section 1, Lab 6 Working with Roles
+
 ```bash
 mkdir -p base/roles
 cd base/roles
@@ -198,7 +210,9 @@ ansible-galaxy init demor
 cd demor/tasks
 nano main.yml
 ```
+
 paste
+
 ```yaml
 ---
 # tasks file for demor
@@ -210,11 +224,14 @@ paste
      group: root
      mode: 0444
 ```
+
 ```bash
 cd ../templates
 nano demor.j2
 ```
+
 paste
+
 ```yaml
 Welcome to {{ ansible_hostname }}
 
@@ -223,14 +240,18 @@ Go away if you have no business being here
 
 Contact {{ system_manager }} if anything is wrong
 ```
+
 ```bash
 cd ../defaults
 nano main.yml
 ```
+
 paste
+
 ```yaml
 # defaults file for demor
 system_manager: admin@golinuxcloud.com
+
 ```bash
 cd ../..
 nano demor-role.yml
@@ -247,7 +268,9 @@ paste
     - role: demor
       system_manager: admin@golinuxcloud.com
 ```
+
 Execute
+
 ```bash
 ansible-playbook demor-role.yml
 ```
@@ -255,4 +278,5 @@ ansible-playbook demor-role.yml
 ## Section 3, Lab 2 Hosts and Groups
 
 ## Section 1, Lab 2 YAML Scripting
+
 ## Section 1, Lab 2 YAML Scripting

@@ -492,6 +492,8 @@ Interested in all the nodes?  Issue the below command to see what ansible knows 
 ansible all -m ansible.builtin.setup | less
 ```
 
+That's it!! You have a fully functional Ansible playground to work with.
+
 ## Docker Clean Up
 
 This might also be a good time to mention cleanup.
