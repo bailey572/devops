@@ -1,2 +1,3 @@
 # devops
-Just a dumping ground for basic informatin as I work my way through the Caltech DevOps Program 4.1
+
+Just a dumping ground for basic information as I work my way through the CalTech DevOps Program 4.1

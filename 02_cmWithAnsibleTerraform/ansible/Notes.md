@@ -181,7 +181,7 @@ ansible-playbook /etc/ansible/playbook.yaml --tags "delete"
 ansible ansible_client -a "ls -al /root"
 ```
 
-Please note, you were to run the playbook again, without the --tag specifier, you would run both tasks sequentially.  Meaning you would create the file, set its permissions, and then immediately delete it.
+Please note, were you to run the playbook again, without the --tag specifier, you would run both tasks sequentially.  Meaning you would create the file, set its permissions, and then immediately delete it.
 
 ## Section 1, Lab 2 YAML Scripting
 
@@ -208,10 +208,10 @@ cp -r client webserver
 
 Usually, we would modify the ./webserver/Dockerfile to configure our webserver but for this exercise we are going to use ansible to do so against our base client image.  Bercasue of this, we do not need to modify the Dockerfile much.  In fact, the only change we will need to make is to expose port 8888 of the docker image by adding it to the exisitng PORT command.
 
-Use nano to update the ./webserver/Docerfile to add the additional port
+Use nano to update the ./webserver/Dockerfile to add the additional port
 
 ```bash
-nano ./webserver/Docerfile
+nano ./webserver/Dockerfile
 ```
 
 ```yaml
@@ -270,16 +270,16 @@ docker-compose up &
 docker exec -it docker_ansible_manager-1 /bin/bash
 ```
 
-Please note: depending on your system the containe name may change slightly, use the ```docker ps``` to verify.
+Please note: depending on your system, the container name may change slightly, use the ```docker ps``` command to verify.
 
-Once you are connect to ```root@ansible_manager:/#``` verify access with ```ssh webserver``` and we are set.
+Once you are connected to ```root@ansible_manager:/#```, verify access with a quick ```ssh webserver``` and we are set.
 
 ### Update the play book
 
 Now we can use ansible to turn our generic node into a webserver by installing nodejs.  On the master node, we will create a new playbook but first we need to install nano.
 
 ```bash
-apt isntall nano
+apt install nano
 nano /etc/ansible/node.yml
 ```
 
@@ -289,22 +289,18 @@ and populate with:
 
 ```yaml
 - hosts: webservers
-  become: true
   tasks:
-  - name: Playbook
-    become: true
-  tasks:
-  - name: add apt key for nodesource
-    become: true
-    apt_key: url=https://deb.nodesource.com/gpgkey/nodesource.gpg.key
-  - name: add repo for nodesource
-    become: true
-    apt_repository:
-     repo: 'deb https://deb.nodesource.com/node_0.10 {{ ansible_distribution_release }} main'
-     update_cache: yes
-  - name: install nodejs
-    become: true
-    apt: name=nodejs
+    - name: install apache2
+      apt: name=apache2 update_cache=yes state=latest
+
+    - name: enabled mod_rewrite
+      apache2_module: name=rewrite state=present
+      notify:
+         - restart apache2
+
+  handlers:
+    - name: restart apache2
+      service: name=apache2 state=restarted
 ```
 
 ### Open firewall
