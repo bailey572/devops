@@ -1,85 +1,33 @@
 
 # Working with Ansible Part 2
 
-## Section 1, Lab 6 Working with Roles
+## Make Ansible scripts local
 
-```bash
-mkdir -p base/roles
-cd base/roles
-ansible-galaxy init demor
-cd demor/tasks
-nano main.yml
-```
+To make life easier, lets create a local area to edit and store our ansible scripts to be executed by the ansible_manager
 
-paste
+###  Create volume
 
-```yaml
----
-# tasks file for demor
-- name: copy demor file
-  template:
-     src: templates/demor.j2
-     dest: /etc/demor
-     owner: root
-     group: root
-     mode: 0444
-```
+Same thing as we did with the webserver
+### Run it
 
-```bash
-cd ../templates
-nano demor.j2
-```
+Use our webserver install as a test
 
-paste
+## Lesson 6 - Exercising Ansible
 
-```yaml
-Welcome to {{ ansible_hostname }}
+Back to class.  The class is running commands against a nodejs system so we will create one and do the same.
 
-This file was created on {{ ansible_date_time.date }}
-Go away if you have no business being here
+### Playing with Ansible loops Lesson 6, Demo 3
 
-Contact {{ system_manager }} if anything is wrong
-```
+### Playing with Ansible conditionals Lesson 6, Demo 4
 
-```bash
-cd ../defaults
-nano main.yml
-```
+## Lesson 7 - Jinja2
 
-paste
+Create a new node for the installation of Jinja2
 
-```yaml
-# defaults file for demor
-system_manager: admin@golinuxcloud.com
+### Variables in jinja2Lesson 7, Demo 2
 
-```bash
-cd ../..
-nano demor-role.yml
-```
+### Variables in jinja2 filters Lesson 7, Demo 5
 
-paste
+## Lesson 8 - Playing with roles
 
-```yaml
----
-
-- name: use demor role playbook
-  hosts: webservers
-  user: ansible
-  become: true
-
-  roles:
-    - role: demor
-      system_manager: admin@golinuxcloud.com
-```
-
-Execute
-
-```bash
-ansible-playbook demor-role.yml
-```
-
-## Section 3, Lab 2 Hosts and Groups
-
-## Section 1, Lab 2 YAML Scripting
-
-## Section 1, Lab 2 YAML Scripting
+## Lesson 9 - Ansible-vault
