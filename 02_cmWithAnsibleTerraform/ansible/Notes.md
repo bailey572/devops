@@ -16,6 +16,8 @@ The first command will create a docker network 'ansible-net', two docker images,
 
 The second command will attach the current terminal to a bash console hosted on docker_ansible_manager_1 where we will be directly interacting with while most commands will be targeted to the clients through the ansible service.
 
+Please note: depending on your system the containe name may change slightly, use the ```docker ps``` to verify.
+
 ## Command line
 
 While it is always recommended to interact with ansible through the use of playbooks, it is sometimes useful to send simple commands straight from the command line and it can be useful for quick experimentation.  The following are a collection of commands with simple explanations.
@@ -185,19 +187,103 @@ Please note, you were to run the playbook again, without the --tag specifier, yo
 
 Now that we have learned a few useful things about ansible playbooks, let's go ahead and work through some of the class examples.  First thing to do, not contaminate our work environment with a server install and instead update our docker compose file to spin up a new node.
 
-### Update the manager nodes hosts
+### Create a play area
 
-To keep our baseline clean, we will copy over the docker directory under the ansible directory we have been working under and make the changes there.  From the 02_cmWithAnsibleTerraform directory issue the following commands:
+To keep our baseline clean, we will copy over the docker directory under the ansible directory we have been working under and make the changes there.  From the 02_cmWithAnsibleTerraform directory in a terminal, issue the following commands:
+
 ```bash
-
+cp -r docker/ ansible/
+rm ansible/docker/Notes.md
 ```
-## Create webserver node
 
-### Create play book
+These commands will move all the docker directory and its contents as a sub directory under ansible, remove the notes page, and navigate us to a known location for the rest of our work.
+
+### Create a webserver node
+
+Our first step is to use the client node as the baseline for our new webserver by copying the client directory contents to a new directory webserver.
+
+```bash
+cp -r client webserver
+```
+
+Usually, we would modify the ./webserver/Dockerfile to configure our webserver but for this exercise we are going to use ansible to do so against our base client image.  Bercasue of this, we do not need to modify the Dockerfile much.  In fact, the only change we will need to make is to expose port 8888 of the docker image by adding it to the exisitng PORT command.
+
+Use nano to update the ./webserver/Docerfile to add the additional port
+
+```bash
+nano ./webserver/Docerfile
+```
 
 ```yaml
-nano node.yml
+# Expose port 22 for ssh and 8888 for the webserver
+EXPOSE 22 8888
 ```
+
+Save the file and exit nano.
+
+### Add webserver to the environment
+
+Update the docker-compose.yaml file directly after the ansible_client definition ending on line 43 (ex: tty: true)
+
+```yaml
+  webserver:
+    # Set a static hostname in the image so we do not have to use IP's
+    hostname: webserver
+    # Define the build section to define how to create the client docker image
+    build: 
+      # Define relative path starting location
+      context: '.'
+      # Set location of Dockerfile for image build
+      dockerfile: "./webserver/Dockerfile"
+    # define list of exposed ports that Compose implementations MUST expose from container.
+    expose: 
+      - 22
+    # assign to ansible network
+    networks:
+      - ansible-net
+    # Tell compose to keep containers running interactive and with a tty
+    stdin_open: true # docker run -i (interactive)
+    tty: true        # docker run -t (tty)
+```
+
+This is practically the same information as the ansible_client definition but we have named it webserver and defined the hostname for the system and pointed to a new dockerfile.  This will result in docker spinning up three seperate nodes on the next docker-compose up command.
+
+The last step required to setup our environment is to update the ./manager/ansible_hosts with the webserver node.
+
+```bash
+[foundation]
+ansible_manager
+ansible_client
+# Add the following
+[webservers]
+webserver
+```
+
+Thats it, we are done.
+
+### Spin up the envirionment
+
+From the same root directory we can spin up all three nodes and then connect to the manager.
+
+```bash
+docker-compose up &
+docker exec -it docker_ansible_manager-1 /bin/bash
+```
+
+Please note: depending on your system the containe name may change slightly, use the ```docker ps``` to verify.
+
+Once you are connect to ```root@ansible_manager:/#``` verify access with ```ssh webserver``` and we are set.
+
+### Update the play book
+
+Now we can use ansible to turn our generic node into a webserver by installing nodejs.  On the master node, we will create a new playbook but first we need to install nano.
+
+```bash
+apt isntall nano
+nano /etc/ansible/node.yml
+```
+
+and populate with:
 
 ### Populate
 
@@ -230,7 +316,7 @@ sudo ufw allow 42006/tcp
 ### Run the playbook
 
 ```bash
-ansible-playbook node.yml -k -K
+ansible-playbook /etc/ansible/node.yml -k -K
 ```
 
 ## Section 1, Lab 3 Apache Web server

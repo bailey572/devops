@@ -1,0 +1,17 @@
+# Allow for passwordless authentication
+PasswordAuthentication no
+# Permit root to login
+PermitRootLogin without-password
+# Use public key authentication (RSA in our test case)
+PubkeyAuthentication yes
+# Listen on port 22 for incoming connections
+Port 22
+# Open up to any address (Not safe in the real world)
+AddressFamily any
+# Answer on any address (Againg not safe in the real world)
+ListenAddress 0.0.0.0
+ListenAddress ::
+# Allow client to pass locale environment variables
+AcceptEnv LANG LC_*
+# override default of no subsystems
+Subsystem	sftp	/usr/lib/openssh/sftp-server
