@@ -350,12 +350,126 @@ touch webserver/apache/index.html
 Using a text editor of your choice, populate the webserver/apache/index.html file with the content of you choice or copy and past the below example.
 
 ```html
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf8">
+    <title>Apache2 Home</title>
+    <style>
+        .head1 {
+            font-size:40px;
+            color:#7a0099;
+            font-weight:bold;
+        }
+        .head2 {
+            font-size:17px;
+            margin-left:10px;
+            margin-bottom:15px;
+        }
+        body {
+            margin: 0 auto;
+            background-position:center;
+            background-size: contain;
+        }
+     
+        .menu {  
+            position: sticky;
+            top: 0;
+            background-color: #940099;
+            padding:10px 0px 10px 0px;
+            color:white;
+            margin: 0 auto;
+            overflow: hidden;
+        }
+        .menu a {
+            float: left;
+            color: white;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+            font-size: 20px;
+        }
+        .menu-log {
+            right: auto;
+            float: right;
+        }
+        footer {
+            width: 100%;
+            bottom: 0px;
+            background-color: #000;
+            color: #fff;
+            position: absolute;
+            padding-top:20px;
+            padding-bottom:50px;
+            text-align:center;
+            font-size:30px;
+            font-weight:bold;
+        }
+        .body_sec {
+            margin-left:20px;
+        }
+    </style>
+</head>
+ 
+<body>
+     
+    <!-- Header Section -->
+    <header>
+        <div class="head1">New Apache2 Custom Home Page</div>
+        <div class="head2">Replacement for default page</div>
+    </header>
+     
+    <!-- Menu Navigation Bar -->
+    <div class="menu">
+        <a href="#home">HOME</a>
+        <a href="#link1">LINK 1</a>
+        <a href="#link2">LINK 2</a>        
+    </div>
+     
+    <!-- Body section -->
+    <div class = "body_sec">
+        <section id="Content">
+            <h3>Content section</h3>
+        </section>
+        <h1>This is heading 1</h1>
+        <h2>This is heading 2</h2>
+        <h3>This is heading 3</h3>
+        <p>This is a paragraph.</p>
+        <p>This is another paragraph.</p>
+    </div>
+     
+    <!-- Footer Section -->
+    <footer>Footer Section</footer>
+</body>
+</html>  
 ```
 
 ### Create the volumne
 
+To create the mount point and replace the existing default apache web page we will update the existing docker-compose file with two additional lines under the webserver node.
+
+Insert the follwoing lines between ```ports``` and ```networks```.  It could go elswhere but this is as good a place as any.
+
+```yaml
+
+```
 
 ### Run it
 
+Now we just need to bring the containers back up.
 
+Because we used ansbile to start the service last time but brought down the system, we have a couple of options.  
+- we could rerun of the ansible script from the manager node
+- we could manually start the service from the webserver node
+
+To mix things up, lets go ahead and connect directly with the webserver and manually start the service
+
+```bash
+docker-compose up &
+docker exec -it docker-webserver-1 /bin/bash
+service apache2 start
+```
+
+**THAT IS IT!!!**.  You can now open your local web browser and go to the address ```http://localhost:8888/``` to see the you new web page.
+
+Even better, if you modify the local file, save the file, and refresh your browser you an see the changes immediatly.
