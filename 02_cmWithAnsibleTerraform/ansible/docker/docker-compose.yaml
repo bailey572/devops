@@ -53,7 +53,8 @@ services:
     # define list of exposed ports that Compose implementations MUST expose from container.
     expose: 
       - 22
-      - 8888
+    ports:
+      - "127.0.0.1:8888:80"
     # assign to ansible network
     networks:
       - ansible-net

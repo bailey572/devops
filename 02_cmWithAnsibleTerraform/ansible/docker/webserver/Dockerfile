@@ -18,8 +18,8 @@ RUN mkdir /root/.ssh
 RUN echo "Host remotehost\n\tStrictHostKeyChecking no\n" >> /root/.ssh/config
 # Copy key to image. CMD sets default that can be modified when container runs
 COPY ./ansible_keys/ansible_id_rsa_shared.pub /root/.ssh/authorized_keys
-# Expose port 22 for ssh and 8888 for the webserver
-EXPOSE 22 8888
+# Expose port 22 for ssh
+EXPOSE 22
 # Ensure the permissions are correct
 RUN chmod -R 600 /root/.ssh
 #  Use the entrypoint to start the ssh service and bash to keep from exiting

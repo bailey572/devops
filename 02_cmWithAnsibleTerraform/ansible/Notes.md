@@ -1,4 +1,4 @@
-# Working with Ansible
+# Working with Ansible Part 1
 
 My original intent was to work through a series of practice labs that had been assigned in a CalTech Devops class but the presentation of, and source material provided was found to be lacking.  Instead, I assembled this collection of notes based roughly on what was assigned and supplemented them with seperate research and logical groupings.
 
@@ -206,20 +206,7 @@ Our first step is to use the client node as the baseline for our new webserver b
 cp -r client webserver
 ```
 
-Usually, we would modify the ./webserver/Dockerfile to configure our webserver but for this exercise we are going to use ansible to do so against our base client image.  Bercasue of this, we do not need to modify the Dockerfile much.  In fact, the only change we will need to make is to expose port 8888 of the docker image by adding it to the exisitng PORT command.
-
-Use nano to update the ./webserver/Dockerfile to add the additional port
-
-```bash
-nano ./webserver/Dockerfile
-```
-
-```yaml
-# Expose port 22 for ssh and 8888 for the webserver
-EXPOSE 22 8888
-```
-
-Save the file and exit nano.
+Usually, we would modify the ./webserver/Dockerfile to configure our webserver but for this exercise we are going to use ansible to do so against our base client image.  Because of this, we do not need to modify the Dockerfile at all.
 
 ### Add webserver to the environment
 
@@ -235,9 +222,12 @@ Update the docker-compose.yaml file directly after the ansible_client definition
       context: '.'
       # Set location of Dockerfile for image build
       dockerfile: "./webserver/Dockerfile"
-    # define list of exposed ports that Compose implementations MUST expose from container.
+    # define list of exposed ports that Compose implementations MUST expose from container.  Expose is only relevant to the docker network, not any further.
     expose: 
       - 22
+    # We are adding ports to give access to the webserver to the local host
+    ports:
+      - "127.0.0.1:8888:80"
     # assign to ansible network
     networks:
       - ansible-net
@@ -246,9 +236,16 @@ Update the docker-compose.yaml file directly after the ansible_client definition
     tty: true        # docker run -t (tty)
 ```
 
-This is practically the same information as the ansible_client definition but we have named it webserver and defined the hostname for the system and pointed to a new dockerfile.  This will result in docker spinning up three seperate nodes on the next docker-compose up command.
+This is practically the same information as the ansible_client definition but we with four simple changes:
 
-The last step required to setup our environment is to update the ./manager/ansible_hosts with the webserver node.
+- changed the node definition to webserver
+- defined the hostname for the system
+- pointed to a new dockerfile. This is not necassary but cleaner, we could have just used the same file.
+- added ports: - "127.0.0.1:8888:80". This line will expose our node to the local host and map port 8888 to the nodes port 80.
+
+This will result in docker spinning up three seperate nodes on the next ```docker-compose up``` command.
+
+The last step required to setup our environment is to update the ./manager/ansible_hosts in order to add the webserver node.  We will not only add the hostname but include it into a new group called webservers.
 
 ```bash
 [foundation]
@@ -261,166 +258,104 @@ webserver
 
 Thats it, we are done.
 
-### Spin up the envirionment
+### Spin up the environment
 
-From the same root directory we can spin up all three nodes and then connect to the manager.
+From the same root directory we can spin up all three nodes and then connect to the manager.  To see the true power of this configuration, you might want to start from a clean state.  We can do this with a few quick commands.
+
+```bash
+docker-compose down -v --rmi all --remove-orphans
+docker system prune               # clean up orphans
+docker images                     # get a list of image ID's for the docker images
+docker rmi ID#1 ID#1 ID#1         # replace ID# with actual ID's to delete all images
+```
+
+To run our new environment, we just need to bring it up and attach to the ansible_manager.
+Please note: depending on your system, the container name may change slightly, use the ```docker ps``` command to verify.
 
 ```bash
 docker-compose up &
 docker exec -it docker_ansible_manager-1 /bin/bash
 ```
 
-Please note: depending on your system, the container name may change slightly, use the ```docker ps``` command to verify.
-
-Once you are connected to ```root@ansible_manager:/#```, verify access with a quick ```ssh webserver``` and we are set.
+Once you are connected to ```root@ansible_manager:/#```, verify access with a quick ```ssh webserver``` command to esatablish connectivity and we are set.  Exit out of webserver to return to the ansible_manager comamnd line.
 
 ### Update the play book
 
-Now we can use ansible to turn our generic node into a webserver by installing nodejs.  On the master node, we will create a new playbook but first we need to install nano.
+Now we can use ansible to turn our generic node into a webserver by installing Apache on it.  On the master node, we will create a new playbook but first we need to install nano.
 
 ```bash
 apt install nano
-nano /etc/ansible/node.yml
+nano /etc/ansible/apache2.yml
 ```
 
 and populate with:
 
-### Populate
+### Populate apache2.yml
+
+With the empty text file opened in the nano editor, we can paste the following content:
 
 ```yaml
 - hosts: webservers
   tasks:
     - name: install apache2
-      apt: name=apache2 update_cache=yes state=latest
+      apt: name=apache2 update_cache=yes state=latest # update and install from packages
 
     - name: enabled mod_rewrite
-      apache2_module: name=rewrite state=present
+      apache2_module: name=rewrite state=present      # ansible module to enable apache2 
       notify:
-         - restart apache2
+         - restart apache2                            # restart the service
 
-  handlers:
+  handlers:                                           # create a block handler to restart the service
     - name: restart apache2
       service: name=apache2 state=restarted
 ```
 
-### Open firewall
-
-```bash
-sudo ufw allow 42006/tcp
-```
+Save the file and we are ready to pass it over to ansible to run the configuration.
 
 ### Run the playbook
 
 ```bash
-ansible-playbook /etc/ansible/node.yml -k -K
+ansible-playbook /etc/ansible/apache2.yml
 ```
 
-## Section 1, Lab 3 Apache Web server
+This will take our, basically useless node, install the apache web server on it and then start the service all in one go.  Because we specified ports in the docker-compose file, we are able to access it from the host system through the local web browser.  To verify apache is running, open a web browser and go to the address ```http://localhost:8888/``` to see the default web page.
 
-### Create play book
+***
+***WARNING: Deleting or rebuilding the container will require running the playbook again***
+***
+
+## Create a volume
+
+Before we move forward and discard this setup, lets go ahead and look are another really neat feature. Declaring a volume mount declaratively through docker-compose.  For this we will create an emptry directory, create a static web page file inside it, and then update the docker-compose.yml file to mount the webserver container to the local file system and display our web page.
+
+### Create Web page
+
+To start, return to the host terminal by exiting ansible_manager by issueing ```exit``` and return to the root of our ```./ansible/docker``` area, the one with the docker-compose.yaml file in it, on the host system.
+
+From there, we can stop the current containers.  Stop allows us to halt their execution without being destructive.  
 
 ```bash
-nano apache2.yaml
+docker-compose stop 
 ```
 
-### Populate
+In all honesty, we could have just stopped one by appending the ```webserver``` node name in but there is not harm in bringing them all down.
 
-```yaml
-- hosts: webservers
-  become: true
-  tasks:
-    - name: install apache2
-      apt: name=apache2 update_cache=yes state=latest
-
-    - name: enabled mod_rewrite
-      apache2_module: name=rewrite state=present
-      notify:
-         - restart apache2
-
-  handlers:
-    - name: restart apache2
-      service: name=apache2 state=restarted
-```
-
-## Section 1, Lab 6 Working with Roles
+Now, create a directory under webserver and add an index.html file.
 
 ```bash
-mkdir -p base/roles
-cd base/roles
-ansible-galaxy init demor
-cd demor/tasks
-nano main.yml
+mkdir webserver/apache
+touch webserver/apache/index.html 
+``
+
+Using a text editor of your choice, populate the webserver/apache/index.html file with the content of you choice or copy and past the below example.
+
+```html
+
 ```
 
-paste
+### Create the volumne
 
-```yaml
----
-# tasks file for demor
-- name: copy demor file
-  template:
-     src: templates/demor.j2
-     dest: /etc/demor
-     owner: root
-     group: root
-     mode: 0444
-```
 
-```bash
-cd ../templates
-nano demor.j2
-```
+### Run it
 
-paste
 
-```yaml
-Welcome to {{ ansible_hostname }}
-
-This file was created on {{ ansible_date_time.date }}
-Go away if you have no business being here
-
-Contact {{ system_manager }} if anything is wrong
-```
-
-```bash
-cd ../defaults
-nano main.yml
-```
-
-paste
-
-```yaml
-# defaults file for demor
-system_manager: admin@golinuxcloud.com
-
-```bash
-cd ../..
-nano demor-role.yml
-```
-
-paste
-
-```yaml
----
-
-- name: use demor role playbook
-  hosts: webservers
-  user: ansible
-  become: true
-
-  roles:
-    - role: demor
-      system_manager: admin@golinuxcloud.com
-```
-
-Execute
-
-```bash
-ansible-playbook demor-role.yml
-```
-
-## Section 3, Lab 2 Hosts and Groups
-
-## Section 1, Lab 2 YAML Scripting
-
-## Section 1, Lab 2 YAML Scripting
