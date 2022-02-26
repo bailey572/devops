@@ -31,10 +31,10 @@ touch ./manager/Dockerfile
 
 ### Populate SSH daemon configuration
 
-In order to keep life simple and have our clients accept incoming SSH requests, we will need to configure the service to do so.  Populate the previously created ./client/sshd_config file with the folliwing content.
+In order to keep life simple and have our clients accept incoming SSH requests, we will need to configure the service to do so.  Populate the previously created ./client/sshd_config file with the following content.
 
 ```bash
-# Allow for passwordless authentication
+# Allow for password less authentication
 PasswordAuthentication no
 # Permit root to login
 PermitRootLogin without-password
@@ -44,7 +44,7 @@ PubkeyAuthentication yes
 Port 22
 # Open up to any address (Not safe in the real world)
 AddressFamily any
-# Answer on any address (Againg not safe in the real world)
+# Answer on any address (Again not safe in the real world)
 ListenAddress 0.0.0.0
 ListenAddress ::
 # Allow client to pass locale environment variables
@@ -57,7 +57,7 @@ This file will be placed withing our client image through the Dockerfile in a la
 
 ### Populate the Ansible hosts file
 
-Keeping with the simple rule, we will copy in a prepopulated Ansible hosts file into the manager image to manage our inventory.  Populate the previously created ./manageer/ansible_hosts file with the following content.
+Keeping with the simple rule, we will copy in a pre-populated Ansible hosts file into the manager image to manage our inventory.  Populate the previously created ./manageer/ansible_hosts file with the following content.
 
 ```bash
 # This is the ansible 'hosts' file.
@@ -79,10 +79,10 @@ ansible_client
 
 ### Generate ssh keys
 
-Because we are doing a very unsafe practice of dumping keys into the images themselves, you will need to gereneate RSA keys.  We will then copy the private key into the Manager image and the public portion within each node to enable login without having to supply a password.
+Because we are doing a very unsafe practice of dumping keys into the images themselves, you will need to generate RSA keys.  We will then copy the private key into the Manager image and the public portion within each node to enable login without having to supply a password.
 For the docker manager and client container, these will be inserted through their respective Dockerfiles during build.
 
-To gerenate new keys, issue the following command.
+To generate new keys, issue the following command.
 
 ```bash
 ssh-keygen
@@ -93,7 +93,7 @@ Provide a passphrase for extra security or leave blank.
 
 Note: If you choose a different name, that name will need to be updated in the the Dockerfile templates below and the keys must be in the local context of the Project directory to be copied in.
 
-For my own sanity, I appended .priv to my private key to make it apparant which was private and which was public.  Hint, Private key goes on the manager, Public goes on the clients.
+For my own sanity, I appended .priv to my private key to make it apparent which was private and which was public.  Hint, Private key goes on the manager, Public goes on the clients.
 
 ### Define our network
 
@@ -198,7 +198,7 @@ FROM ubuntu:18.04
 LABEL maintainer=bailey572@msn.com
 # Specify zero interactions are required during installation/upgrades (uses default answers)
 ENV DEBIAN_FRONTEND=noninteractive
-# Start by initiating an update of the repositorires
+# Start by initiating an update of the repositories
 RUN apt update 
 # Install these packages for a functional ansible
 RUN apt install software-properties-common -y
@@ -208,7 +208,7 @@ RUN apt install ansible -y
 RUN apt install openssh-client gcc python-dev libkrb5-dev -y
 # Install the openssh-server for local ansible calls to manager
 RUN apt install openssh-server -y 
-# Since we have an sshd we need to cofigure it, for now we will steal the client version
+# Since we have an sshd we need to configure it, for now we will steal the client version
 # Copy over the configured sshd_config to allow remote root login
 COPY ./client/sshd_config /etc/ssh/
 # Copy over the configured ansible_hosts file to expose the inventory
@@ -237,7 +237,7 @@ Execute the build step through docker compose with the following command.  Pleas
 docker-compose build ansible_manager
 ```
 
-This will generate the ansible manage image with the latest tag.  Verify its existance with the following command.
+This will generate the ansible manage image with the latest tag.  Verify its existence with the following command.
 
 ```bash
 docker images
@@ -247,7 +247,7 @@ docker images
 
 Run the docker run command providing:
 
-- The --rm flag to remove the conatiner on exit
+- The --rm flag to remove the container on exit
 - The --net flag to specify the network we are going to use
 - The --name flag to specify the name of the container
 - The name of the container to run (```ansible_manager```)
@@ -259,7 +259,7 @@ Run the docker run command providing:
 docker run --rm --net=ansible-net --name ansible_manger -it docker_ansible_manager
 ```
 
-Success will provide a root level command prompt where you can verify the existence of ansible by issueing the following command.
+Success will provide a root level command prompt where you can verify the existence of ansible by issuing the following command.
 
 ```bas
 ansible --version
@@ -279,7 +279,7 @@ FROM ubuntu:18.04
 LABEL maintainer=bailey572@msn.com
 # Specify zero interactions are required during installation/upgrades (uses default answers)
 ENV DEBIAN_FRONTEND=noninteractive
-# Start by initiating an update of the repositorires (RUN always executes the command on the image)
+# Start by initiating an update of the repositories (RUN always executes the command on the image)
 RUN apt update 
 # Install the openssh-server
 RUN apt install openssh-server -y 
@@ -309,7 +309,7 @@ From the second terminal, execute the build step through docker compose with the
 docker-compose build ansible_client
 ```
 
-This will generate the ansible client image with the latest tag.  Verify its existance with the following command.
+This will generate the ansible client image with the latest tag.  Verify its existence with the following command.
 
 ```bash
 docker images
@@ -319,7 +319,7 @@ docker images
 
 Run the docker run command providing:
 
-- The --rm flag to remove the conatiner on exit
+- The --rm flag to remove the container on exit
 - The --net flag to specify the network we are going to use
 - The --name flag to specify the name of the container
 - The name of the container to run (```ansible_node```)
@@ -331,7 +331,7 @@ Run the docker run command providing:
 docker run --rm --net=ansible-net --name ansible_node -it docker_ansible_client
 ```
 
-Success will provide a root level command prompt where you can verify the containers IP address by issueing the following command.
+Success will provide a root level command prompt where you can verify the containers IP address by issuing the following command.
 
 ```bash
 hostname -i
@@ -349,8 +349,8 @@ or
 ssh [HOSTNAME of CLIENT]
 ```
 
-Both the IP address and the hostname will work due to the built in DNS capapbilty of docker and the fact that they are both running on the same virtual network, ansible-net.
-Go ahead and exit both the client and the manager instances.  Because of the earlier run commands with --rm flage, the coontainers will automatically be removed.
+Both the IP address and the hostname will work due to the built in DNS capability of docker and the fact that they are both running on the same virtual network, ansible-net.
+Go ahead and exit both the client and the manager instances.  Because of the earlier run commands with --rm flag, the container's will automatically be removed.
 
 ## Spinning everything up the easy way
 
@@ -368,11 +368,11 @@ hostname                                                   # should be ansible_m
 ssh ansible_client                                         # prompt should now be ansible_client
 ```
 
-Congradulations, you now have a client and manager setup and ready to play with ansible commands.  Not only do you have a work evironment, you can do no harm.  Not only can you stop or start your containers keeping all of your data, you can stop, remove (rm), and run a pristine instance.  Just don't forget to copy (cp) any files you want to keep to the local filesystem before doing so.
+Congratulations, you now have a client and manager setup and ready to play with ansible commands.  Not only do you have a work environment, you can do no harm.  Not only can you stop or start your containers keeping all of your data, you can stop, remove (rm), and run a pristine instance.  Just don't forget to copy (cp) any files you want to keep to the local filesystem before doing so.
 
 Exit out of the container and issue the ```docker-compose stop``` command to shutdown up the containers.  You start can issue the ```docker-compose start``` to spin them up again in the exact state you left them in.
 
-Alternatively, if you want to start from scratch after shutting down, use ```docker-compose rm``` to remove esiting containers.  On the next ```docker-compose up &``` command, new instances will be spun up with all our default settings defined in the docker files.
+Alternatively, if you want to start from scratch after shutting down, use ```docker-compose rm``` to remove existing containers.  On the next ```docker-compose up &``` command, new instances will be spun up with all our default settings defined in the docker files.
 ***
 ***WARNING: IMAGES CREATED WITH THIS METHOD SHOULD NOT BE COMMITTED TO PUBLIC REPOSITORIES***
 ***
@@ -380,7 +380,7 @@ Alternatively, if you want to start from scratch after shutting down, use ```doc
 ## Running through Ansible commands
 
 Now that we have a functional playground, lets walk through some basic commands to test it out.  We will first exercise command line options and then generate an ansible playbook.
-If not already connected to the ansible_manager terminal, do so now by issuein the up and exec commands from above.
+If not already connected to the ansible_manager terminal, do so now by issuing the up and exec commands from above.
 
 ```bash
 docker-compose up &
@@ -401,7 +401,7 @@ This will give a listing of all items in our inventory and the foundation group 
 
 To see just the known hosts use ```ansible all  --list-hosts```
 
-Starting out, we will pass linux commands directly to the target system through the ansible service by upsurping the -a (MODULE_ARGS) flag and invoking default ansible 'command' module.  
+Starting out, we will pass linux commands directly to the target system through the ansible service by usurping the -a (MODULE_ARGS) flag and invoking default ansible 'command' module.  
 
 The following commands will reach out to the client node and perform simple file IO.  Since we have not automated the known_host for the containers, you will prompted to establish the authenticity of the fingerprint.  Enter yes to connect and update sources known_host file.
 
@@ -409,11 +409,11 @@ The following commands will reach out to the client node and perform simple file
 ansible ansible_client -a "ls -al"                      # list clients working directory content
 ansible ansible_client -a "touch ansible_was_here"      # Create an empty file
 ansible ansible_client -a "ls -al"                      # verify that the file is there
-ansible ansible_client -a "chmod 666 ansible_was_here"  # change file persmissions
+ansible ansible_client -a "chmod 666 ansible_was_here"  # change file permissions
 ansible ansible_client -a "ls -al"                      # verify -rw-rw-rw-
 ```
 
-The above operation could have also been done through Ansibles file module directly from the command line.
+The above operation could have also been done through Ansible file module directly from the command line.
 
 ```bash
 ansible ansible_client -m ansible.builtin.file -a "path=test.txt state=touch mode=666"
@@ -484,7 +484,7 @@ ansible-playbook /etc/ansible/playbook.yaml --tags "delete"
 ansible ansible_client -a "ls -al /root"
 ```
 
-Please note, if you were to run the playbook again, without the --tag specifier, you would run both tasks sequentially.  Meaning you would creat the file, set its permissions, and then immediately delete it.
+Please note, if you were to run the playbook again, without the --tag specifier, you would run both tasks sequentially.  Meaning you would create the file, set its permissions, and then immediately delete it.
 
 Interested in all the nodes?  Issue the below command to see what ansible knows or can find out.
 

@@ -1,6 +1,6 @@
 # Working with Ansible Part 1
 
-My original intent was to work through a series of practice labs that had been assigned in a CalTech Devops class but the presentation of, and source material provided was found to be lacking.  Instead, I assembled this collection of notes based roughly on what was assigned and supplemented them with seperate research and logical groupings.
+My original intent was to work through a series of practice labs that had been assigned in a CalTech Devops class but the presentation of, and source material provided was found to be lacking.  Instead, I assembled this collection of notes based roughly on what was assigned and supplemented them with separate research and logical groupings.
 
 ## Spin up test system
 
@@ -16,7 +16,7 @@ The first command will create a docker network 'ansible-net', two docker images,
 
 The second command will attach the current terminal to a bash console hosted on docker_ansible_manager_1 where we will be directly interacting with while most commands will be targeted to the clients through the ansible service.
 
-Please note: depending on your system the containe name may change slightly, use the ```docker ps``` to verify.
+Please note: depending on your system the container name may change slightly, use the ```docker ps``` to verify.
 
 ## Command line
 
@@ -31,7 +31,7 @@ Calls the ansible executable with the following arguments.
 
 - foundation: group defined in the host file.  Ansible will then call each entry node sequentially and issue the command
 - m: specifies to run an ansible module
-- shell: module to assist in issueing shell commands
+- shell: module to assist in issuing shell commands
 - a: shorthand for --args to pass into the module
 - hostname: linux command to retrieve the name of the system
 
@@ -49,7 +49,7 @@ Calls the ansible executable with the following arguments.
 - a: shorthand for --args to pass into the module
   - The name and the state parameter values are then passed in
   - present tells the module to install if not already present
-- An optional --become runs operations with elevated (sudo) privelages but is not required here as we are executing everything as root
+- An optional --become runs operations with elevated (sudo) privileges but is not required here as we are executing everything as root
 
 This command will ssh into the ansible_client machine and attempt to install the git application on the client machine after updating the repository cache and installing any missing dependencies.  If git is already present, ansible will still return a success but will report false for and changes.
 
@@ -69,7 +69,7 @@ Calls the ansible executable with the following arguments.
 - ansible_client: specific node in the host file.
 - m: specifies to run an ansible module
 - file: module to assist in file/dir IO operations
-- a: shorthand for --arge to pass into the modules
+- a: shorthand for --args to pass into the modules
   - dest: location to place the file
   - state: set to touch to create file
   - mode: octal permissions of the file rw for user only
@@ -78,14 +78,14 @@ Calls the ansible executable with the following arguments.
 
 This command will create an empty file on the client node  in roots home directory with rm permissions and owned by the root user and group.  
 
-To verify its existance, issue
+To verify its existence, issue
 
 ``` ansible ansible_client -a "ls -al /root/sample.txt" ```
 
 Calls the ansible executable with the following arguments.
 
 - ansible_client: specific node in the host file.
-- a: shorthand for --arge to pass into the modules.  Default ansible is called
+- a: shorthand for --args to pass into the modules.  Default ansible is called
   - ls -al /root/sample.txt:
 
 This command issues the standard linux command to do a long listing of the file /root/sample.txt returning the current permissions.
@@ -98,11 +98,11 @@ It should be noted that just about any linux command, or series of commands, can
 
 While we could execute ansible modules directly from the command line, and there are [A LOT](https://docs.ansible.com/ansible/2.7/modules/list_of_all_modules.html) of them to choose from.  Best practices really are to issue the command through Play Books.
 
-Play books are YAML (YAML Ain't Markup Language) scripts containing basically the same parameter arguments that we have been issueing directly from the command line.
+Play books are YAML (YAML Ain't Markup Language) scripts containing basically the same parameter arguments that we have been issuing directly from the command line.
 
 Before we get started, lets put a simple text editor on the ansible_manager node.  From root@ansible_manager:/# issue ```apt install nano -y```
 
-For our playbook, let's revisit the earlier command for creating an empty file on the anssible_client machine ``` ansible ansible_client -m file -a 'dest=/root/sample.txt state=touch mode=600 owner=root group=root' ```
+For our playbook, let's revisit the earlier command for creating an empty file on the ansible_client machine ``` ansible ansible_client -m file -a 'dest=/root/sample.txt state=touch mode=600 owner=root group=root' ```
 
 To begin, use the nano application to create an empty file:
 
@@ -170,7 +170,7 @@ nano /etc/ansible/playbook.yaml
       - delete
 ```
 
-The additional content we added is very similiar to the original content with a few key differences, the addition of tags and changing the keyword from touch to absent.  Whereas the state 'touch' creates a file, the 'absent' state directs the module to delete the file.
+The additional content we added is very similar to the original content with a few key differences, the addition of tags and changing the keyword from touch to absent.  Whereas the state 'touch' creates a file, the 'absent' state directs the module to delete the file.
 
 By default, executing an ansible playbook causes ansible to execute each task sequentially.  Tags allow us to name specific parts of a playbook, in this instance to the tasks themselves, and gain finer control over the execution of the playbook.
 
@@ -240,10 +240,10 @@ This is practically the same information as the ansible_client definition but we
 
 - changed the node definition to webserver
 - defined the hostname for the system
-- pointed to a new dockerfile. This is not necassary but cleaner, we could have just used the same file.
+- pointed to a new dockerfile. This is not necessary but cleaner, we could have just used the same file.
 - added ports: - "127.0.0.1:8888:80". This line will expose our node to the local host and map port 8888 to the nodes port 80.
 
-This will result in docker spinning up three seperate nodes on the next ```docker-compose up``` command.
+This will result in docker spinning up three separate nodes on the next ```docker-compose up``` command.
 
 The last step required to setup our environment is to update the ./manager/ansible_hosts in order to add the webserver node.  We will not only add the hostname but include it into a new group called webservers.
 
@@ -277,7 +277,7 @@ docker-compose up &
 docker exec -it docker_ansible_manager-1 /bin/bash
 ```
 
-Once you are connected to ```root@ansible_manager:/#```, verify access with a quick ```ssh webserver``` command to esatablish connectivity and we are set.  Exit out of webserver to return to the ansible_manager comamnd line.
+Once you are connected to ```root@ansible_manager:/#```, verify access with a quick ```ssh webserver``` command to establish connectivity and we are set.  Exit out of webserver to return to the ansible_manager command line.
 
 ### Update the play book
 
@@ -330,7 +330,7 @@ Before we move forward and discard this setup, lets go ahead and look are anothe
 
 ### Create Web page
 
-To start, return to the host terminal by exiting ansible_manager by issueing ```exit``` and return to the root of our ```./ansible/docker``` area, the one with the docker-compose.yaml file in it, on the host system.
+To start, return to the host terminal by exiting ansible_manager by issuing ```exit``` and return to the root of our ```./ansible/docker``` area, the one with the docker-compose.yaml file in it, on the host system.
 
 From there, we can stop the current containers.  Stop allows us to halt their execution without being destructive.  
 
@@ -448,7 +448,7 @@ Using a text editor of your choice, populate the webserver/apache/index.html fil
 
 To create the mount point and replace the existing default apache web page we will update the existing docker-compose file with two additional lines under the webserver node.
 
-Insert the follwoing lines between ```ports``` and ```networks```.  It could go elswhere but this is as good a place as any.
+Insert the following lines between ```ports``` and ```networks```.  It could go elsewhere but this is as good a place as any.
 
 ```yaml
 
@@ -458,7 +458,7 @@ Insert the follwoing lines between ```ports``` and ```networks```.  It could go 
 
 Now we just need to bring the containers back up.
 
-Because we used ansbile to start the service last time but brought down the system, we have a couple of options.  
+Because we used ansible to start the service last time but brought down the system, we have a couple of options.  
 - we could rerun of the ansible script from the manager node
 - we could manually start the service from the webserver node
 
@@ -472,4 +472,4 @@ service apache2 start
 
 **THAT IS IT!!!**.  You can now open your local web browser and go to the address ```http://localhost:8888/``` to see the you new web page.
 
-Even better, if you modify the local file, save the file, and refresh your browser you an see the changes immediatly.
+Even better, if you modify the local file, save the file, and refresh your browser you an see the changes immediately.
