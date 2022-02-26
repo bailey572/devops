@@ -15,7 +15,7 @@ Instead of locally installing ansible for test and evaluation, the below will ca
   - Docker: version 20
   - Docker Compose: version 2.2
 
-### Create our Compose environment
+### Create our Docker-Compose environment
 
 To get started, we are going to create a series of directories and files to keep things in order.  To begin, create an empty directory for this project.
 ``` mkdir [PROJECT NAME] ```
@@ -53,7 +53,7 @@ AcceptEnv LANG LC_*
 Subsystem sftp /usr/lib/openssh/sftp-server
 ```
 
-This file will be placed withing our client image through the Dockerfile in a later step.
+This file will be placed within our client image through the Dockerfile in a later step.
 
 ### Populate the Ansible hosts file
 
@@ -115,7 +115,7 @@ To remove unwanted docker networks use the command.  Do not remove the bridge or
 docker network rm [NETWORK ID]
 ```
 
-To get more information about the newly created docker network, issued the following command.
+To get more information about the newly created docker network, issue the following command.
 
 ```bash
 docker network inspect ansible-net
@@ -231,7 +231,7 @@ ENTRYPOINT service ssh restart && bash
 
 #### Test build of the Ansible Manager Image
 
-Execute the build step through docker compose with the following command.  Please note that you must be the directory that contains the docker-compose.yaml file or use the -f option to point to it.
+Execute the build step through docker compose with the following command.  Please note that you must be in the directory that contains the docker-compose.yaml file or use the -f option to point to it.
 
 ```bash
 docker-compose build ansible_manager
@@ -389,7 +389,7 @@ docker exec -it docker-ansible_manager-1 /bin/bash
 
 ### Ansible command line
 
-Generally when using ansible to configure systems, you want to capture those activities in a playbook that can be captured in a repository but there are times when simple command line, ad hoc, interactions are desired.  The following are collection are just a sample to exercise our systems.  Please review [Introduction to ad hoc commands](https://docs.ansible.com/ansible/latest/user_guide/intro_adhoc.html) for more information.
+Generally when using ansible to configure systems, you want to capture those activities in a playbook that can be captured in a repository but there are times when simple command line, ad hoc, interactions are desired.  The following is a sample of ansible command line actions to exercise our systems.  Please review [Introduction to ad hoc commands](https://docs.ansible.com/ansible/latest/user_guide/intro_adhoc.html) for more information.
 
 To verify our managed inventory, use the built in inventory command.
 
@@ -403,7 +403,7 @@ To see just the known hosts use ```ansible all  --list-hosts```
 
 Starting out, we will pass linux commands directly to the target system through the ansible service by usurping the -a (MODULE_ARGS) flag and invoking default ansible 'command' module.  
 
-The following commands will reach out to the client node and perform simple file IO.  Since we have not automated the known_host for the containers, you will prompted to establish the authenticity of the fingerprint.  Enter yes to connect and update sources known_host file.
+The following commands will reach out to the client node and perform simple file IO.  Since we have not automated the known_host for the containers, you will be prompted to establish the authenticity of the fingerprint.  Enter yes to connect and update sources known_host file.
 
 ```bash
 ansible ansible_client -a "ls -al"                      # list clients working directory content
@@ -449,7 +449,7 @@ and populate it with the following content
       - create
 ```
 
-Executes our playbook and verify the results with the following commands.
+Execute our playbook and verify the results with the following commands.
 
 ```bash
 ansible-playbook /etc/ansible/playbook.yaml

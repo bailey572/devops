@@ -4,7 +4,7 @@ My original intent was to work through a series of practice labs that had been a
 
 ## Spin up test system
 
-If you would like to follow along, I would suggest grabbing the docker-compose based setup to spin up a test system.  Notes for the project are located in the [Notes.md](https://github.com/bailey572/devops/blob/main/02_cmWithAnsibleTerraform/docker/Notes.md).  If you are accessing these locally from a github checkout, they are located in the root 02_cmWithAnsible/docker folder.  I highly suggest reading through them but if not, here is a quick start needed to get started.
+If you would like to follow along, I would suggest grabbing the docker-compose based setup to spin up a test system.  Notes for the project are located in the [Notes.md](https://github.com/bailey572/devops/blob/main/02_cmWithAnsibleTerraform/docker/Notes.md).  If you are accessing these locally from a github checkout, they are located in the root 02_cmWithAnsible/docker folder.  I highly suggest reading through them but if not, here is a quick start guide to get you started.
 Open a terminal folder and navigate to the 02_cmWithAnsible/docker folder and issue the following commands.
 
 ```bash
@@ -14,9 +14,9 @@ docker exec -it docker_ansible_manager_1 /bin/bash
 
 The first command will create a docker network 'ansible-net', two docker images, and two docker containers 'docker_ansible_manager_1 and docker_ansible_client_1 based on those images.  
 
-The second command will attach the current terminal to a bash console hosted on docker_ansible_manager_1 where we will be directly interacting with while most commands will be targeted to the clients through the ansible service.
+The second command will attach the current terminal to a bash console, hosted on the docker_ansible_manager_1 node, where we will be directly interacting with that node and most commands will be targeted to the clients through the ansible service.
 
-Please note: depending on your system the container name may change slightly, use the ```docker ps``` to verify.
+Please note: depending on your system the container name may change slightly, use the ```docker ps``` command to verify.
 
 ## Command line
 
@@ -174,7 +174,7 @@ The additional content we added is very similar to the original content with a f
 
 By default, executing an ansible playbook causes ansible to execute each task sequentially.  Tags allow us to name specific parts of a playbook, in this instance to the tasks themselves, and gain finer control over the execution of the playbook.
 
-This time we are going to execute just the single task 'delete' based on the tag name use that to remove the file.
+This time we are going to execute just the single task 'delete' based on the tag name to remove the file.
 
 ```bash
 ansible-playbook /etc/ansible/playbook.yaml --tags "delete"
@@ -326,7 +326,7 @@ This will take our, basically useless node, install the apache web server on it 
 
 ## Create a volume
 
-Before we move forward and discard this setup, lets go ahead and look are another really neat feature. Declaring a volume mount declaratively through docker-compose.  For this we will create an emptry directory, create a static web page file inside it, and then update the docker-compose.yml file to mount the webserver container to the local file system and display our web page.
+Before we move forward and discard this setup, lets go ahead and look at another really neat feature. Declaring a volume mount declaratively through docker-compose.  For this we will create an emptry directory, create a static web page file inside it, and then update the docker-compose.yml file to mount the webserver container to the local file system and display our web page.
 
 ### Create Web page
 
@@ -338,14 +338,14 @@ From there, we can stop the current containers.  Stop allows us to halt their ex
 docker-compose stop 
 ```
 
-In all honesty, we could have just stopped one by appending the ```webserver``` node name in but there is not harm in bringing them all down.
+In all honesty, we could have just stopped one node by appending the ```webserver``` node name in the command, but there is no harm in bringing them all down.
 
 Now, create a directory under webserver and add an index.html file.
 
 ```bash
 mkdir webserver/apache
 touch webserver/apache/index.html 
-``
+```
 
 Using a text editor of your choice, populate the webserver/apache/index.html file with the content of you choice or copy and past the below example.
 
@@ -451,7 +451,11 @@ To create the mount point and replace the existing default apache web page we wi
 Insert the following lines between ```ports``` and ```networks```.  It could go elsewhere but this is as good a place as any.
 
 ```yaml
-
+ports:
+      - "127.0.0.1:8888:80"
+    # assign to ansible network
+    volumes:
+      - ./webserver/apache:/var/www/html:ro    # This will mount the dir as read only
 ```
 
 ### Run it
@@ -459,7 +463,7 @@ Insert the following lines between ```ports``` and ```networks```.  It could go 
 Now we just need to bring the containers back up.
 
 Because we used ansible to start the service last time but brought down the system, we have a couple of options.  
-- we could rerun of the ansible script from the manager node
+- we could rerun the ansible script from the manager node
 - we could manually start the service from the webserver node
 
 To mix things up, lets go ahead and connect directly with the webserver and manually start the service
@@ -470,6 +474,6 @@ docker exec -it docker-webserver-1 /bin/bash
 service apache2 start
 ```
 
-**THAT IS IT!!!**.  You can now open your local web browser and go to the address ```http://localhost:8888/``` to see the you new web page.
+**THAT IS IT!!!**.  You can now open your local web browser and go to the address ```http://localhost:8888/``` to see your new web page.
 
-Even better, if you modify the local file, save the file, and refresh your browser you an see the changes immediately.
+Even better, if you modify the local file, save the file, and refresh your browser you can see the changes immediately.
