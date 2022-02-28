@@ -1,0 +1,13 @@
+- hosts: webservers
+  tasks:
+    - name: install apache2
+      apt: name=apache2 update_cache=yes state=latest # update and install from packages
+
+    - name: enabled mod_rewrite
+      apache2_module: name=rewrite state=present      # ansible module to enable apache2 
+      notify:
+         - restart apache2                            # restart the service
+
+  handlers:                                           # create a block handler to restart the service
+    - name: restart apache2
+      service: name=apache2 state=restarted

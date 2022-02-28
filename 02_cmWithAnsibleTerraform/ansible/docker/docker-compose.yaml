@@ -18,6 +18,9 @@ services:
     # define list of exposed ports that Compose implementations MUST expose from container.
     expose: 
       - 22
+    # assign to ansible network
+    volumes:
+      - ../playbooks/:/root/playbooks:ro    # This will mount the dir as read only
     networks:
       - ansible-net
     # Tell compose to keep containers running interactive and with a tty
