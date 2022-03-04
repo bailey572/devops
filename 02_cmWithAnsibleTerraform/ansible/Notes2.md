@@ -355,7 +355,7 @@ This simple test is used to poll the ```os_family``` and ```distribution_major_v
 
 The ```when``` conditional is a little interesting if you are use to other languages as it appears at the end of the exectution block with all actual commands only executing on true.  This messed with my head a little the first time I encountered it.
 
-Additionally, you may have noticed that I replaced the example text ```command: echo "Sample Message"``` with a debug message function.  I did this for two reasons. 
+Additionally, you may have noticed that I replaced the example text ```command: echo "Sample Message"``` with a debug message function.  I did this for two reasons.
 
 - I do not like registering changes if I am not doing anything, which the echo command will do
 - I wanted to be able to see the results for the ansible_manager isntead of dumping it to the client output
@@ -377,6 +377,7 @@ Go ahead and add the two named tasks to our  ```conditionals.yaml``` file and ru
 You may ask yourself, why would you use a series of ```when``` statements instead of an ```if``` statement?  Because ansible only support when with ansible_facts, see [Conditionals](https://docs.ansible.com/ansible/latest/user_guide/playbooks_conditionals.html) on the official site for more information.
 
 ## Lesson 7 - Jinja2
+
 Lesson 7 is fairly short and provides an introduction into leveraging jinja2 through ansible for more complex coding.  Jinja2 is a templating language for the interpretaion of Python commands, often used to add Python processing to web pages.  We will be using it to enhance Ansible.  If you are interested in more information check out the official documentation at [Jinja2](https://jinja2docs.readthedocs.io/en/stable/).
 
 Generally, we would need to update our Docker image to install but Jinja2 is so common, it was already installed with Ansible.  You can verify this by querying the debian package manager.
@@ -463,8 +464,57 @@ In this simple test case, the name "webserver" was pulled from the ansible inver
 Impressive? Not really, but it does provide a good foundation for Demo 4.
 
 What about Lesson 7, Demo 3 you might ask?  Waste of time that does less than what we have already gone over, so I have not included here.
-### Variables in jinja2 filters Lesson 7, Demo 5
 
-## Lesson 8 - Playing with roles
+### Variables in jinja2 filters Lesson 7, Demo 4
 
-## Lesson 9 - Ansible-vault
+While this exercise does not show us the real power of using jinja2 in our ansible, it does show off some of the filtering capability it brings in.  I am not going to spend a lot of time explaining what is going on as the commands are fairly self explanatory and cosists of two pieces.  
+
+In the ```02_cmWithAnsibleTerraform/ansible/playbooks/``` directory create two new files:
+
+- syntaxFilter.yaml
+- defaultFilter.yaml
+
+and populate them with the follwoing:
+
+#### syntaxFilter.yaml
+
+```yaml
+---
+ - name: Data Manipulation
+   hosts: localhost
+   gather_facts: false
+   vars:
+     my_name: Bored Programmer
+   tasks:
+   - name: Print message
+     debug:
+       msg:
+        - "My name is {{ my_name }}"
+        - "My name is {{ my_name | lower }}"
+        - "My name is {{ my_name | upper }}"
+        - "My name is {{ my_name | capitalize }}"
+        - "My name is {{ my_name | title }}"
+```
+
+#### syntaxFilter.yaml
+
+```yaml
+---
+ - name: Data Manipulation
+   hosts: localhost
+   gather_facts: false
+   vars:
+     first_name: Bored
+   tasks:
+   - name: Print message
+     debug:
+       msg:
+        - "My name is {{ first_name }} {{ last_name | default('Programmer') }}"
+```
+
+I recommend that you run them both one at a time, look at the YAML, and compare it to the output.
+
+```bash
+ansible-playbook /root/playbooks/syntaxFilter.yaml
+ansible-playbook /root/playbooks/defaultFilter.yaml
+```
