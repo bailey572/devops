@@ -333,8 +333,48 @@ This will show almost all of the options currently available in ansible.  Some o
 
 ### Playing with Ansible conditionals Lesson 6, Demo 4
 
-For the last part of lesson 6, lets go ahead and explore some of the conditional stetements found in ansible.
+For the last part of lesson 6, lets go ahead and explore some of the conditional stetements found in ansible.  Go ahead and create a new file ```conditionals.yaml``` in the ```02_cmWithAnsibleTerraform/ansible/playbooks/``` directory, paste the following code, and save it.
 
+```yaml
+--- # denotes start of YAML, not required but good practice
+- hosts: ansible_client # target the ansible_client node
+  tasks:
+  - name: "Checking OS Family"
+    debug: # built in print statement
+      msg: "You are running a {{ansible_facts['os_family']}} OS, distrobution {{ansible_facts['distribution']}} version {{ansible_facts['distribution_major_version']}}"
+    when: ansible_facts['os_family'] == "Debian"
+```
+
+Move over to the ansible_manager command line and run the playbook.
+
+```bash
+ansible-playbook /root/playbooks/conditionals.yaml
+```
+
+This simple test is used to poll the ```os_family``` and ```distribution_major_version``` variable.  In our case, it is Debian as can be verified with the command ```ansible all -m ansible.builtin.setup``` and viewing the  ```"ansible_os_family": "Debian"``` line in the output.
+
+The ```when``` conditional is a little interesting if you are use to other languages as it appears at the end of the exectution block with all actual commands only executing on true.  This messed with my head a little the first time I encountered it.
+
+Additionally, you may have noticed that I replaced the example text ```command: echo "Sample Message"``` with a debug message function.  I did this for two reasons. 
+
+- I do not like registering changes if I am not doing anything, which the echo command will do
+- I wanted to be able to see the results for the ansible_manager isntead of dumping it to the client output
+
+To see an example of multiple logical compares using the ```and``` keyword, ```or``` works the same way, and is only true when both are true.  Because this is YAML, you MUST enclose the conditional statement in paranthesis ```(CONDITIONS)``` if more that one codition is used.  
+Go ahead and add the two named tasks to our  ```conditionals.yaml``` file and run it again from the ansible_manager to simulate an if/else logic.
+
+```yaml
+  - name: "Is correct version"
+    debug: 
+      msg: "You are running the correct version"
+    when: (ansible_facts['os_family'] == "Debian" and ansible_facts['distribution_major_version'] == "18")
+  - name: "Is not correct version"
+    debug: 
+      msg: "You are NOT running the expected OS version"
+    when: (ansible_facts['os_family'] == "Debian" and ansible_facts['distribution_major_version'] != "18")
+```
+
+You may ask yourself, why would you use a series of ```when``` statements instead of an ```if``` statement?  Because ansible only support when with ansible_facts, see [Conditionals](https://docs.ansible.com/ansible/latest/user_guide/playbooks_conditionals.html) on the official site for more information.
 ## Lesson 7 - Jinja2
 
 Create a new node for the installation of Jinja2

@@ -1,0 +1,15 @@
+--- # denotes start of YAML, not required but good practice
+- hosts: ansible_client # target the ansible_client node
+  tasks:
+  - name: "Checking OS Family"
+    debug: # built in print statement
+      msg: "You are running a {{ansible_facts['os_family']}} OS, distribution {{ansible_facts['distribution']}} version {{ansible_facts['distribution_major_version']}}"
+    when: ansible_facts['os_family'] == "Debian"
+  - name: "Is correct version"
+    debug: 
+      msg: "You are running the correct version"
+    when: (ansible_facts['os_family'] == "Debian" and ansible_facts['distribution_major_version'] == "18")
+  - name: "Is not correct version"
+    debug: 
+      msg: "You are NOT running the expected OS version"
+    when: (ansible_facts['os_family'] == "Debian" and ansible_facts['distribution_major_version'] != "18")
