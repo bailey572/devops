@@ -60,7 +60,7 @@ services:
       - "127.0.0.1:8888:80"
     # assign to ansible network
     volumes:
-      - ./webserver/apache:/var/www/html:ro    # This will mount the dir as read only
+      - ./webserver/apache:/var/www/html    # This will mount the dir as read only
     networks:
       - ansible-net
     # Tell compose to keep containers running interactive and with a tty

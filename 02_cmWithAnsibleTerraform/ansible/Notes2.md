@@ -34,7 +34,7 @@ Using your favorite text editor, populate the local playbook file with the follo
       service: name=apache2 state=restarted
 ```
 
-If the above looks familiar, congradulations on workingh through the first set of notes.  This the same playbook that we created to install and start the apache web server with our custom page directly on the manager node.  Here we are doing the same thing but we can edit it locally and run from manager.
+If the above looks familiar, congradulations on working through the first set of notes.  This the same playbook that we created to install and start the apache web server with our custom page directly on the manager node.  Here we are doing the same thing but we can edit it locally and run from manager.
 
 ### Create volume
 
@@ -375,12 +375,94 @@ Go ahead and add the two named tasks to our  ```conditionals.yaml``` file and ru
 ```
 
 You may ask yourself, why would you use a series of ```when``` statements instead of an ```if``` statement?  Because ansible only support when with ansible_facts, see [Conditionals](https://docs.ansible.com/ansible/latest/user_guide/playbooks_conditionals.html) on the official site for more information.
-## Lesson 7 - Jinja2
 
-Create a new node for the installation of Jinja2
+## Lesson 7 - Jinja2
+Lesson 7 is fairly short and provides an introduction into leveraging jinja2 through ansible for more complex coding.  Jinja2 is a templating language for the interpretaion of Python commands, often used to add Python processing to web pages.  We will be using it to enhance Ansible.  If you are interested in more information check out the official documentation at [Jinja2](https://jinja2docs.readthedocs.io/en/stable/).
+
+Generally, we would need to update our Docker image to install but Jinja2 is so common, it was already installed with Ansible.  You can verify this by querying the debian package manager.
+
+```bash
+dpkg-query -l | grep python-jinja2
+```
+
+You should be able to see version such as ```2.10-1ubuntu0.18.04.1``` is already available.  If not, then go ahead and install from ansible_manager comamand line with ```sudo apt-get install -y python-jinja2```.  Yep, the etire point of lab 1 with not real background on it.  Guess they hope the instructor tells you why.
 
 ### Variables in jinja2Lesson 7, Demo 2
 
+I almost left this one out as it has a really light use in our ansible class but thought I might as well document what the intent is as it is not really really clear.
+
+For this exercise, we will create two two files.  The first ```index.j2``` will hold some content that jinja2 can interact with and the second ```jinja2_apache.yaml``` will be our playbook that leverage the jinja2 code.
+
+To start with, we will need to change our current docker-compose cofiguration for the ```webserver``` mount to allow the volume to be writable.  We will not touch the other images, containers.
+First, edit the ```02_cmWithAnsibleTerraform/ansible/docker/docker-compose.yaml``` file to remove the ``ro`` parameter from our mount
+
+```yaml
+# FROM
+- ./webserver/apache:/var/www/html:ro
+# TO
+- ./webserver/apache:/var/www/html
+```
+
+Once the update is saved, we will need to not only restart the webserver but also remove the existing volume and create a new one.  This is easier done than said, so don't panic.
+
+Open a termial, or reuse an existing one on the local host and navigate to the ```02_cmWithAnsibleTerraform/ansible/docker/``` directory then issue:
+
+```bash
+docker-compose down
+docker-compose up -d
+```
+
+Once your containers come back up, they are all once again in a clean state and all previous changes will be gone.  Luckily, we have saved all of our scripts on the local host mounted as a volume, so to reinstall the apache web service reuising our existing script, once we attach to the ansible_manager, we need only the following commands.
+
+```bash
+docker exec -it docker_ansible_manager-1 /bin/bash
+ansible-playbook /root/playbooks/localPlaybook.yaml
+```
+
+This will once again install our apache pakcage and start the service.  To start the jinja2 specific exercise create a new file ```index.j2``` in the ```02_cmWithAnsibleTerraform/ansible/playbooks/``` directory, paste the following code, and save it.
+
+```yaml
+A message from {{ inventory_hostname }}
+{{ webserver_message }}
+```
+
+Now create a new file ```jinja2_apache.yaml``` in the ```02_cmWithAnsibleTerraform/ansible/playbooks/``` directory, paste the following code, and save it.
+
+```yaml
+---
+- name: Check if Apache is working # name the entire play
+  hosts: webservers # will hit all nodes in webserver group. We only have one right now
+  vars:
+    webserver_message: "I am running to the finish line." # populate variable that will be pulled from jinja2 file
+  tasks:
+    - name: Start apache2 # just make sure that apache is starter
+      service:
+        name: apache2
+        state: started
+    # this block will use the jinja2 source in index.j2 to create a new jinja.html file 
+    - name: Create index.html using Jinja2 
+      template:
+        src: index.j2
+        dest: /var/www/html/jinja.html
+```
+
+From here, we can run the jinja2_apache.yaml playbook from the ansible_manager node and create a new html file that has been customized through the jinja2 script.
+
+```bash
+ansible-playbook /root/playbooks/jinja2_apache.yaml
+```
+
+Open a browser on your host system and enter ```http://localhost:8888/jinja.html``` as the URL.  This will display the html file custom created by jinja2 for that node.  
+
+```html
+A message from webserver I am running to the finish line.
+```
+
+In this simple test case, the name "webserver" was pulled from the ansible inverntory variable inventory_hostname and the message from the ansible playbooks local variable webserver_message.  The original exercise was to overwrite the default homepage index.html but I didn't want to.
+
+Impressive? Not really, but it does provide a good foundation for Demo 5.
+
+What about Lesson 7, Demo 4 you might ask?  Waste of time that does less than what we have already gone over, so I have not included here.
 ### Variables in jinja2 filters Lesson 7, Demo 5
 
 ## Lesson 8 - Playing with roles
