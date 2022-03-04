@@ -2,6 +2,6 @@
    vars: # creates a block of variables
      salutations: Hello guys! # create variable and gives it a value
    tasks:  # section for collection of named tasks
-   - name: Ansible Variable Basic Usage
-     debug:
-       msg: "{{ salutations }}"
+   - name: Ansible Variable Basic Usage # label for task
+     debug: # built in print statement
+       msg: "{{ salutations }}" # dereference variable and pass to msg function

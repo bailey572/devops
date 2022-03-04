@@ -104,12 +104,14 @@ Exercise two is all about variables, ok it shows that ansible supports variables
    vars: # creates a block of variables
      salutations: Hello guys! # create variable and gives it a value
    tasks:  # section for collection of named tasks
-   - name: Ansible Variable Basic Usage
-     debug:
-       msg: "{{ salutations }}"
+   - name: Ansible Variable Basic Usage # label for task
+     debug: # built in print statement
+       msg: "{{ salutations }}" # dereference variable and pass to msg function
 ```
 
-This is one worth running, if a little light.  Remeber the work we did to share an area on our local host system with a mount point in our ansible_manager?  Let's use that now.
+This is one worth running, if a little light.  Fun fact, you would think the line ```debug:``` turns on the ansible debugger but nope, this command leverages the built in print statement run during execution.  Handy, but if you are really interested in debugging, take a look a the [Debugging tasks](https://docs.ansible.com/ansible/latest/user_guide/playbooks_debugger.html) documentation.
+
+Moving on, remeber the work we did to share an area on our local host system with a mount point in our ansible_manager?  Let's use that now.
 
 On your local system, create a new text file ```basicVariable.yaml``` in the ```02_cmWithAnsibleTerraform/ansible/playbooks/``` folder we are referencencing in docker-compose.yaml file at about line 22, ```- ../playbooks/:/root/playbooks:ro```  and paste the above playbook cofiguration from above and save it.
 
@@ -137,10 +139,201 @@ Let's go ahead and run it to test the variable usage.
 ansible-playbook /root/playbooks/basicVariable.yaml
 ```
 
-This will run through all of our nodes and show you the message, exciting no but it gets the job done.  
+This will run through all of our nodes and show you the message, exciting no, but it gets the job done and you should see the following:
+
+```bash
+TASK [Ansible Variable Basic Usage] **********************************************************************************************************************************************
+ok: [ansible_manager] => {
+    "msg": "Hello guys!"
+}
+ok: [ansible_client] => {
+    "msg": "Hello guys!"
+}
+ok: [webserver] => {
+    "msg": "Hello guys!"
+}
+```
+
 ### Playing with Ansible loops Lesson 6, Demo 3
 
+There is a lot of different ways that we could exercise variables but Lesson 6, Demo3 is a pretty good example and introduces loops and logic in ansble.  Go ahead and create a new file ```loops.yaml``` in the ```02_cmWithAnsibleTerraform/ansible/playbooks/``` directory, paste the following code, and save it.
+
+```yaml
+--- # denotes start of YAML, not required but good practice
+  - hosts: ansible_client # target the ansible_client node
+    tasks: # section for collection of named tasks
+    - name: loop # task name
+      debug: # built in print statement
+        msg: "{{ item }}" # dereference variable and pass to msg function
+      loop: # built in function to iterate over list
+        - loop_one # create a two item 'list' for the for function
+        - loop_two
+    - name: with_items # task name
+      debug: # built in print statement
+        msg: "{{ item }}" # dereference variable and pass to msg function
+      with_items: # deprecated function replaced by loop and flatten filter to iterate over list
+        - with_one # create a two item 'list' for the for function
+        - with_two
+    - name: with_indexed_items # task name
+      debug:
+        msg: "{{ item.0 }} - {{ item.1 }}"
+      with_indexed_items: # deprecated function replaced by loop and flatten filter to iterate over list
+        - index_one # create a two item 'list' for the for function
+        - index_two
+```
+
+Since you should still have a terminal connection to ansible_manager we can easily run the new playbook.  If not, go ahead and connect with ```docker exec -it docker_ansible_manager-1 /bin/bash``` before continueing.
+
+```bash
+ansible-playbook /root/playbooks/loops.yaml
+```
+
+Upon execution of the playbook, you will see the print messages exercised through three unique methods available in ansible (loop, with_items, and with_indexed_items).  They each perform the same basic function and the two 'with' options have actually been depricated with the loop, the flatten filter and loop_control.index_var controls since version 2.8 but you will still see their use often.  The official [documentation](https://docs.ansible.com/ansible/latest/user_guide/playbooks_loops.html#iterating-over-a-simple-list) provides some better examples and I have assembled them below.  Go ahead and create a new file ```exampleLoops.yaml``` in the ```02_cmWithAnsibleTerraform/ansible/playbooks/``` directory, paste the following code, and save it.
+
+```yaml
+--- # denotes start of YAML, not required but good practice
+  - hosts: ansible_client # target the ansible_client node
+    vars: # create a block of variables
+      globalItems:
+        - global_one # create a two item 'list' for the for function
+        - global_two
+      list_one:
+        - list_one_one
+        - list_one_two
+      list_two:
+        - list_two_one
+        - list_two_two
+      global_dict: {dict_one, dict_two }
+
+    tasks: # section for collection of named tasks
+    - name: with_list
+      ansible.builtin.debug:
+        msg: "{{ item }}"
+      with_list:
+        - one
+        - two
+
+    - name: with_list -> loop
+      ansible.builtin.debug:
+        msg: "{{ item }}"
+      loop:
+        - one
+        - two
+    
+    - name: with_items
+      ansible.builtin.debug:
+        msg: "{{ item }}"
+      with_items: "{{ globalItems }}"
+
+    - name: with_items -> loop
+      ansible.builtin.debug:
+        msg: "{{ item }}"
+      loop: "{{ globalItems|flatten(levels=1) }}"
+    
+    - name: with_indexed_items
+      ansible.builtin.debug:
+        msg: "{{ item.0 }} - {{ item.1 }}"
+      with_indexed_items: "{{ globalItems }}"
+
+    - name: with_indexed_items -> loop
+      ansible.builtin.debug:
+        msg: "{{ index }} - {{ item }}"
+      loop: "{{ globalItems|flatten(levels=1) }}"
+      loop_control:
+        index_var: index
+  
+    - name: with_flattened
+      ansible.builtin.debug:
+        msg: "{{ item }}"
+      with_flattened: "{{ globalItems }}"
+
+    - name: with_flattened -> loop
+      ansible.builtin.debug:
+        msg: "{{ item }}"
+      loop: "{{ globalItems|flatten }}"
+
+    - name: with_together
+      ansible.builtin.debug:
+        msg: "{{ item.0 }} - {{ item.1 }}"
+      with_together:
+        - "{{ list_one }}"
+        - "{{ list_two }}"
+
+    - name: with_together -> loop
+      ansible.builtin.debug:
+        msg: "{{ item.0 }} - {{ item.1 }}"
+      loop: "{{ list_one|zip(list_two)|list }}"
+
+    - name: with_together -> loop
+      ansible.builtin.debug:
+        msg: "{{ item.0 }} - {{ item.1 }} - {{ item.2 }}"
+      loop: "{{ data[0]|zip(*data[1:])|list }}"
+      vars:
+        data:
+          - ['a', 'b', 'c']
+          - ['d', 'e', 'f']
+          - ['g', 'h', 'i']
+   
+    - name: with_dict
+      ansible.builtin.debug:
+        msg: "{{ item.key }} - {{ item.value }}"
+      with_dict: "{{ global_dict }}"
+
+    - name: with_dict -> loop (option 1)
+      ansible.builtin.debug:
+        msg: "{{ item.key }} - {{ item.value }}"
+      loop: "{{ global_dict|dict2items }}"
+
+    - name: with_dict -> loop (option 2)
+      ansible.builtin.debug:
+        msg: "{{ item.0 }} - {{ item.1 }}"
+      loop: "{{ global_dict|dictsort }}"
+    
+    - name: with_sequence
+      ansible.builtin.debug:
+        msg: "{{ item }}"
+      with_sequence: start=0 end=4 stride=2 format=testuser%02x
+
+    - name: with_sequence -> loop
+      ansible.builtin.debug:
+        msg: "{{ 'testuser%02x' | format(item) }}"
+      # range is exclusive of the end point
+      loop: "{{ range(0, 4 + 1, 2)|list }}"
+
+    - name: with_nested
+      ansible.builtin.debug:
+        msg: "{{ item.0 }} - {{ item.1 }}"
+      with_nested:
+        - "{{ list_one }}"
+        - "{{ list_two }}"
+
+    - name: with_nested -> loop
+      ansible.builtin.debug:
+        msg: "{{ item.0 }} - {{ item.1 }}"
+      loop: "{{ list_one|product(list_two)|list }}"
+
+    - name: with_random_choice
+      ansible.builtin.debug:
+        msg: "{{ item }}"
+      with_random_choice: "{{ globalItems }}"
+
+    - name: with_random_choice -> loop (No loop is needed here)
+      ansible.builtin.debug:
+        msg: "{{ globalItems|random }}"
+      tags: random
+```
+
+Move over to the ansible_manager command line and run the playbook.
+
+```bash
+ansible-playbook /root/playbooks/exampleLoops.yaml
+```
+
+This will show almost all of the options currently available in ansible.  Some of the website examples referenced variables that were not created, so I went ahead and added them as global playbook level variable.  This is actually a pretty good way to see local and playbook scope variables and even introduces the dictionary type.  I created a lazy definiton.  Please see, [YAML Syntax](https://docs.ansible.com/ansible/latest/reference_appendices/YAMLSyntax.html) for better examples.
+
 ### Playing with Ansible conditionals Lesson 6, Demo 4
+
+For the last part of lesson 6, lets go ahead and explore some of the conditional stetements found in ansible.
 
 ## Lesson 7 - Jinja2
 

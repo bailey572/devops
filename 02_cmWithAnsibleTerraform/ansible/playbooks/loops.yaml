@@ -1,0 +1,21 @@
+--- # denotes start of YAML, not required but good practice
+  - hosts: ansible_client # target the ansible_client node
+    tasks: # section for collection of named tasks
+    - name: loop # task name
+      debug: # built in print statement
+        msg: "{{ item }}" # dereference variable and pass to msg function
+      loop: # built in function to iterate over list
+        - loop_one # create a two item 'list' for the for function
+        - loop_two
+    - name: with_items # task name
+      debug: # built in print statement
+        msg: "{{ item }}" # dereference variable and pass to msg function
+      with_items: # deprecated function replaced by loop and flatten filter to iterate over list
+        - with_one # create a two item 'list' for the for function
+        - with_two
+    - name: with_indexed_items # task name
+      debug:
+        msg: "{{ item.0 }} - {{ item.1 }}"
+      with_indexed_items: # deprecated function replaced by loop and flatten filter to iterate over list
+        - index_one # create a two item 'list' for the for function
+        - index_two

@@ -1,0 +1,130 @@
+--- # denotes start of YAML, not required but good practice
+  - hosts: ansible_client # target the ansible_client node
+    vars: # create a block of variables
+      globalItems:
+        - global_one # create a two item 'list' for the for function
+        - global_two
+      list_one:
+        - list_one_one
+        - list_one_two
+      list_two:
+        - list_two_one
+        - list_two_two
+      global_dict: {dict_one, dict_two }
+
+    tasks: # section for collection of named tasks
+    - name: with_list
+      ansible.builtin.debug:
+        msg: "{{ item }}"
+      with_list:
+        - one
+        - two
+
+    - name: with_list -> loop
+      ansible.builtin.debug:
+        msg: "{{ item }}"
+      loop:
+        - one
+        - two
+    
+    - name: with_items
+      ansible.builtin.debug:
+        msg: "{{ item }}"
+      with_items: "{{ globalItems }}"
+
+    - name: with_items -> loop
+      ansible.builtin.debug:
+        msg: "{{ item }}"
+      loop: "{{ globalItems|flatten(levels=1) }}"
+    
+    - name: with_indexed_items
+      ansible.builtin.debug:
+        msg: "{{ item.0 }} - {{ item.1 }}"
+      with_indexed_items: "{{ globalItems }}"
+
+    - name: with_indexed_items -> loop
+      ansible.builtin.debug:
+        msg: "{{ index }} - {{ item }}"
+      loop: "{{ globalItems|flatten(levels=1) }}"
+      loop_control:
+        index_var: index
+  
+    - name: with_flattened
+      ansible.builtin.debug:
+        msg: "{{ item }}"
+      with_flattened: "{{ globalItems }}"
+
+    - name: with_flattened -> loop
+      ansible.builtin.debug:
+        msg: "{{ item }}"
+      loop: "{{ globalItems|flatten }}"
+
+    - name: with_together
+      ansible.builtin.debug:
+        msg: "{{ item.0 }} - {{ item.1 }}"
+      with_together:
+        - "{{ list_one }}"
+        - "{{ list_two }}"
+
+    - name: with_together -> loop
+      ansible.builtin.debug:
+        msg: "{{ item.0 }} - {{ item.1 }}"
+      loop: "{{ list_one|zip(list_two)|list }}"
+
+    - name: with_together -> loop
+      ansible.builtin.debug:
+        msg: "{{ item.0 }} - {{ item.1 }} - {{ item.2 }}"
+      loop: "{{ data[0]|zip(*data[1:])|list }}"
+      vars:
+        data:
+          - ['a', 'b', 'c']
+          - ['d', 'e', 'f']
+          - ['g', 'h', 'i']
+   
+    - name: with_dict
+      ansible.builtin.debug:
+        msg: "{{ item.key }} - {{ item.value }}"
+      with_dict: "{{ global_dict }}"
+
+    - name: with_dict -> loop (option 1)
+      ansible.builtin.debug:
+        msg: "{{ item.key }} - {{ item.value }}"
+      loop: "{{ global_dict|dict2items }}"
+
+    - name: with_dict -> loop (option 2)
+      ansible.builtin.debug:
+        msg: "{{ item.0 }} - {{ item.1 }}"
+      loop: "{{ global_dict|dictsort }}"
+    
+    - name: with_sequence
+      ansible.builtin.debug:
+        msg: "{{ item }}"
+      with_sequence: start=0 end=4 stride=2 format=testuser%02x
+
+    - name: with_sequence -> loop
+      ansible.builtin.debug:
+        msg: "{{ 'testuser%02x' | format(item) }}"
+      # range is exclusive of the end point
+      loop: "{{ range(0, 4 + 1, 2)|list }}"
+
+    - name: with_nested
+      ansible.builtin.debug:
+        msg: "{{ item.0 }} - {{ item.1 }}"
+      with_nested:
+        - "{{ list_one }}"
+        - "{{ list_two }}"
+
+    - name: with_nested -> loop
+      ansible.builtin.debug:
+        msg: "{{ item.0 }} - {{ item.1 }}"
+      loop: "{{ list_one|product(list_two)|list }}"
+
+    - name: with_random_choice
+      ansible.builtin.debug:
+        msg: "{{ item }}"
+      with_random_choice: "{{ globalItems }}"
+
+    - name: with_random_choice -> loop (No loop is needed here)
+      ansible.builtin.debug:
+        msg: "{{ globalItems|random }}"
+      tags: random
