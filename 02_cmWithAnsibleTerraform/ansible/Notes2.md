@@ -460,9 +460,9 @@ A message from webserver I am running to the finish line.
 
 In this simple test case, the name "webserver" was pulled from the ansible inverntory variable inventory_hostname and the message from the ansible playbooks local variable webserver_message.  The original exercise was to overwrite the default homepage index.html but I didn't want to.
 
-Impressive? Not really, but it does provide a good foundation for Demo 5.
+Impressive? Not really, but it does provide a good foundation for Demo 4.
 
-What about Lesson 7, Demo 4 you might ask?  Waste of time that does less than what we have already gone over, so I have not included here.
+What about Lesson 7, Demo 3 you might ask?  Waste of time that does less than what we have already gone over, so I have not included here.
 ### Variables in jinja2 filters Lesson 7, Demo 5
 
 ## Lesson 8 - Playing with roles
