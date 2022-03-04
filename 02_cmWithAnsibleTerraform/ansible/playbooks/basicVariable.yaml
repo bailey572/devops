@@ -1,0 +1,7 @@
+ - hosts: all # will run against all nodes in your /etc/ansible/hosts file
+   vars: # creates a block of variables
+     salutations: Hello guys! # create variable and gives it a value
+   tasks:  # section for collection of named tasks
+   - name: Ansible Variable Basic Usage
+     debug:
+       msg: "{{ salutations }}"

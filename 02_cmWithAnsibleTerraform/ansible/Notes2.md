@@ -76,8 +76,68 @@ Because the are "new" containers, you will have to type "yes" to accept the conn
 
 ## Lesson 6 - Exercising Ansible
 
-Back to class.  The class is running commands against a nodejs system so we will create one and do the same.
+Back to class.  The class is running commands against a nodejs system so we quickly make sure that we do the same.will create one and do the same.  Some of the information is good to have and some is just redundant.  For instance Lesson 6, Lab 1 introduces you to running a preconfigured YAML script, which we just covered to greater detail, so I am going to skip that lab.  For completeness, below is the script with bonus material explaining what it is doing (something missing from the lab itself) through comments.  Feel free to run it.
 
+```yaml
+- name: install nodejs  # friendly name of the play
+  hosts: webservers  # target node to run against
+  gather_facts: True # tells ansible to gather information about node
+  become: true # elevate privelages, will not work with our docker images since we are running as root
+  tasks: # section for collection of named tasks
+   - name: add apt key for nodesource # label for task
+     apt_key: url=https://deb.nodesource.com/gpgkey/nodesource.gpg.key # pull down public key for Node.js for NODESOURCE
+   - name: add repo for nodesource # label for task
+     apt_repository:
+      repo: 'deb https://deb.nodesource.com/node_0.10 {{ ansible_distribution_release }} main' # add repository to our image list 
+      update_cache: no
+   - name: install nodejs # install the nodeJS service and dependencies
+     apt: name=nodejs # will usually make sure service is started
+     #state: present # best practice is to make sure state is set (not in lab exercise)
+```
+
+As you can see, this will install and NodeJS service, which is an open-source, cross-platform, JavaScript runtime environment that executes JavaScript code outside of a web browser.  If you are doing development or want to unit test your javascript without depending on a browser, NodeJS is your best friend.
+
+Exercise two is all about variables, ok it shows that ansible supports variables like every other scripting language, with the simple playbook:
+
+```yaml
+ - hosts: all # will run against all nodes in your /etc/ansible/hosts file
+   vars: # creates a block of variables
+     salutations: Hello guys! # create variable and gives it a value
+   tasks:  # section for collection of named tasks
+   - name: Ansible Variable Basic Usage
+     debug:
+       msg: "{{ salutations }}"
+```
+
+This is one worth running, if a little light.  Remeber the work we did to share an area on our local host system with a mount point in our ansible_manager?  Let's use that now.
+
+On your local system, create a new text file ```basicVariable.yaml``` in the ```02_cmWithAnsibleTerraform/ansible/playbooks/``` folder we are referencencing in docker-compose.yaml file at about line 22, ```- ../playbooks/:/root/playbooks:ro```  and paste the above playbook cofiguration from above and save it.
+
+Now for the fun part.  Make sure your containers are running and attach a termnal to ansible_manager by opening up a terminal, navigating to the directory containing our ```docker-compose.yaml``` file located in ```YOUR_DEV_DIR/02_cmWithAnsibleTerraform/ansible/docker/```, and issueing:
+
+```bash
+docker-compose up -d
+docker exec -it docker_ansible_manager-1 /bin/bash
+```
+
+Please note: depending on your system, the '_' may be replaced with '-' in the generated numbers.  I bounce between three systems and have been too lazy to figure out what variable controls the generation but a quick ```docker ps``` will give you the correct name.
+
+Now that we are logged into the ansible-manager, we can verify that our local file is available.
+
+```bash
+ls -al /root/playbooks
+cat /root/playbooks/basicVariable.yaml
+```
+
+I LOVE IT!!!  The best part is, we can edit, add, remove, whatever and not have to stop or rebuild our image or containers. This not only makes it easy to develop but also allows us to push and pull from a source repository like git without having to modify any of the docker stuff.
+
+Let's go ahead and run it to test the variable usage.
+
+```bash
+ansible-playbook /root/playbooks/basicVariable.yaml
+```
+
+This will run through all of our nodes and show you the message, exciting no but it gets the job done.  
 ### Playing with Ansible loops Lesson 6, Demo 3
 
 ### Playing with Ansible conditionals Lesson 6, Demo 4
