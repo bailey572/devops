@@ -326,7 +326,7 @@ This will take our, basically useless node, install the apache web server on it 
 
 ## Create a volume
 
-Before we move forward and discard this setup, lets go ahead and look at another really neat feature. Declaring a volume mount declaratively through docker-compose.  For this we will create an emptry directory, create a static web page file inside it, and then update the docker-compose.yml file to mount the webserver container to the local file system and display our web page.
+Before we move forward and discard this setup, lets go ahead and look at another really neat feature. Declaring a volume mount declaratively through docker-compose.  For this we will create an empty directory, create a static web page file inside it, and then update the docker-compose.yml file to mount the webserver container to the local file system and display our web page.
 
 ### Create Web page
 
@@ -444,7 +444,7 @@ Using a text editor of your choice, populate the webserver/apache/index.html fil
 </html>  
 ```
 
-### Create the volumne
+### Create the volume
 
 To create the mount point and replace the existing default apache web page we will update the existing docker-compose file with two additional lines under the webserver node.
 

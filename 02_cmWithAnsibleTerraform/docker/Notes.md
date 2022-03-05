@@ -57,7 +57,7 @@ This file will be placed within our client image through the Dockerfile in a lat
 
 ### Populate the Ansible hosts file
 
-Keeping with the simple rule, we will copy in a pre-populated Ansible hosts file into the manager image to manage our inventory.  Populate the previously created ./manageer/ansible_hosts file with the following content.
+Keeping with the simple rule, we will copy in a pre-populated Ansible hosts file into the manager image to manage our inventory.  Populate the previously created ./manager/ansible_hosts file with the following content.
 
 ```bash
 # This is the ansible 'hosts' file.
@@ -80,7 +80,7 @@ ansible_client
 ### Generate ssh keys
 
 Because we are doing a very unsafe practice of dumping keys into the images themselves, you will need to generate RSA keys.  We will then copy the private key into the Manager image and the public portion within each node to enable login without having to supply a password.
-For the docker manager and client container, these will be inserted through their respective Dockerfiles during build.
+For the docker manager and client container, these will be inserted through their respective Dockerfile during build.
 
 To generate new keys, issue the following command.
 
