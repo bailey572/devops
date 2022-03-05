@@ -1,0 +1,15 @@
+---
+- name: Remove users
+  hosts: all
+  vars_files: # used to read in file content for playbook access
+  - users.yaml
+  tasks: 
+  - name: "remove users"
+    user: # user module for manipulation of user accounts
+      name: "{{ item.name }}" # item auto created by with_items
+      state: absent # absent indicates user should not be there
+      # used Ashutosh's password_hash trick but fed in password from users.yaml
+      password: "{{ item.password | password_hash('sha512')}}" 
+      group: "{{ item.group }}"
+    with_items: # loop through a list
+      - "{{users}}" # just pull the users items from the vars_file

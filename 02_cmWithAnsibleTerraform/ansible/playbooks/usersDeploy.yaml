@@ -1,0 +1,18 @@
+---
+- name: Create users
+  hosts: all  
+  vars_files: # used to read in file content for playbook access
+  - users.yaml
+  tasks: 
+  - name: "add users"
+    user: # user module for manipulation of user accounts
+      name: "{{ item.name }}" # item auto created by with_items
+      state: present # present indicates user should be there
+      # used Ashutosh's password_hash trick but fed in password from users.yaml
+      password: "{{ item.password | password_hash('sha512')}}"
+      group: "{{ item.group }}"
+    with_items: # loop through a list
+      - "{{users}}" # just pull the users items from the vars_file
+  - name: "add group" 
+    group: # group module for adding new group to support user adds
+      name: simplilearn

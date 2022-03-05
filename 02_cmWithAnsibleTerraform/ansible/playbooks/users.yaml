@@ -1,0 +1,11 @@
+users:
+  - name:  user1
+    password: password1
+    group: simplilearn
+  - name:  user2
+    password: password2
+    group: simplilearn
+  - name:  user3
+    password: password3
+    group: simplilearn
+ 
