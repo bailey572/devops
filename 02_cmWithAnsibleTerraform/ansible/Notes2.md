@@ -5,7 +5,7 @@
 
 To make life easier, lets create a local area to edit and store our ansible scripts to be executed by the ansible_manager.  To do so, we will create a local folder, update the compose file to create a volume, then create a playbook to be injected into the manager container for execution.
 
-### Create local direcoty and file
+### Create local directory and file
 
 From the directory ./02_cmWithAnsibleTerraform/ansible, create a playbook directory and our playbook.
 
@@ -34,7 +34,7 @@ Using your favorite text editor, populate the local playbook file with the follo
       service: name=apache2 state=restarted
 ```
 
-If the above looks familiar, congradulations on working through the first set of notes.  This the same playbook that we created to install and start the apache web server with our custom page directly on the manager node.  Here we are doing the same thing but we can edit it locally and run from manager.
+If the above looks familiar, congratulations on working through the first set of notes.  This the same playbook that we created to install and start the apache web server with our custom page directly on the manager node.  Here we are doing the same thing but we can edit it locally and run from manager.
 
 ### Create volume
 
@@ -49,7 +49,7 @@ This will mount a new volume in our manager container in root's home directory. 
 
 ### Run it
 
-Cycle the current set of containers in our docker-compose.yaml file and test out the results.  Because we want everything in a clean state, bring down the containers instead of just stopping them.  This will ensure that previous modificatons that we have made are removed.  Instead of changing directories, we can use the -f flag to point to our file.
+Cycle the current set of containers in our docker-compose.yaml file and test out the results.  Because we want everything in a clean state, bring down the containers instead of just stopping them.  This will ensure that previous modifications that we have made are removed.  Instead of changing directories, we can use the -f flag to point to our file.
 
 ```bash
 docker-compose -f ./docker/docker-compose.yaml down
@@ -58,7 +58,7 @@ docker-compose -f ./docker/docker-compose.yaml up -d
 
 Did you notice the ```-d``` flag?  This is a build in flag for docker to run the command detached.  Like the ```&``` puts the process in the background, running detached will keep from blocking your terminal prompt.  They both work and I have not seen an advantage to one or the other.
 
-Now that we are up and running, go ahead and take a looke at the ansible_manager node and verify our new file is present.
+Now that we are up and running, go ahead and take a look at the ansible_manager node and verify our new file is present.
 
 ```bash
 docker exec -it docker_ansible_manager-1 /bin/bash
@@ -69,20 +69,20 @@ cat /root/playbooks/localPlaybook.yaml
 To verify everything is working correctly, go ahead and open your local web browser and go to URL address ```http://localhost:8888/```.  This will give you an error such as page isn't working or session reset depending on your browser but that is to be expected as we have not configured the web server yet.  Let's do that now by executing ansible from the ansible_manager node:
 
 ```bash
-nsible-playbook /root/playbooks/localPlaybook.yaml 
+ansible-playbook /root/playbooks/localPlaybook.yaml 
 ```
 
-Because the are "new" containers, you will have to type "yes" to accept the connection and add to the known hosts file.  Let the script execute through its steps (isntall, enable, restart) and once finished, refresh your browser.  Your custome web page should now be visible.
+Because the are "new" containers, you will have to type "yes" to accept the connection and add to the known hosts file.  Let the script execute through its steps (install, enable, restart) and once finished, refresh your browser.  Your custom web page should now be visible.
 
 ## Lesson 6 - Exercising Ansible
 
-Back to class.  The class is running commands against a nodejs system so we quickly make sure that we do the same.will create one and do the same.  Some of the information is good to have and some is just redundant.  For instance Lesson 6, Lab 1 introduces you to running a preconfigured YAML script, which we just covered to greater detail, so I am going to skip that lab.  For completeness, below is the script with bonus material explaining what it is doing (something missing from the lab itself) through comments.  Feel free to run it.
+Back to class.  The class is running commands against a nodejs system so we quickly make sure that we do the same.will create one and do the same.  Some of the information is good to have and some is just redundant.  For instance Lesson 6, Lab 1 introduces you to running a pre-configured YAML script, which we just covered to greater detail, so I am going to skip that lab.  For completeness, below is the script with bonus material explaining what it is doing (something missing from the lab itself) through comments.  Feel free to run it.
 
 ```yaml
 - name: install nodejs  # friendly name of the play
   hosts: webservers  # target node to run against
   gather_facts: True # tells ansible to gather information about node
-  become: true # elevate privelages, will not work with our docker images since we are running as root
+  become: true # elevate privileges, will not work with our docker images since we are running as root
   tasks: # section for collection of named tasks
    - name: add apt key for nodesource # label for task
      apt_key: url=https://deb.nodesource.com/gpgkey/nodesource.gpg.key # pull down public key for Node.js for NODESOURCE
@@ -111,11 +111,11 @@ Exercise two is all about variables, ok it shows that ansible supports variables
 
 This is one worth running, if a little light.  Fun fact, you would think the line ```debug:``` turns on the ansible debugger but nope, this command leverages the built in print statement run during execution.  Handy, but if you are really interested in debugging, take a look a the [Debugging tasks](https://docs.ansible.com/ansible/latest/user_guide/playbooks_debugger.html) documentation.
 
-Moving on, remeber the work we did to share an area on our local host system with a mount point in our ansible_manager?  Let's use that now.
+Moving on, remember the work we did to share an area on our local host system with a mount point in our ansible_manager?  Let's use that now.
 
-On your local system, create a new text file ```basicVariable.yaml``` in the ```02_cmWithAnsibleTerraform/ansible/playbooks/``` folder we are referencencing in docker-compose.yaml file at about line 22, ```- ../playbooks/:/root/playbooks:ro```  and paste the above playbook cofiguration from above and save it.
+On your local system, create a new text file ```basicVariable.yaml``` in the ```02_cmWithAnsibleTerraform/ansible/playbooks/``` folder we are referencing in docker-compose.yaml file at about line 22, ```- ../playbooks/:/root/playbooks:ro```  and paste the above playbook configuration from above and save it.
 
-Now for the fun part.  Make sure your containers are running and attach a termnal to ansible_manager by opening up a terminal, navigating to the directory containing our ```docker-compose.yaml``` file located in ```YOUR_DEV_DIR/02_cmWithAnsibleTerraform/ansible/docker/```, and issueing:
+Now for the fun part.  Make sure your containers are running and attach a terminal to ansible_manager by opening up a terminal, navigating to the directory containing our ```docker-compose.yaml``` file located in ```YOUR_DEV_DIR/02_cmWithAnsibleTerraform/ansible/docker/```, and issuing:
 
 ```bash
 docker-compose up -d
@@ -156,7 +156,7 @@ ok: [webserver] => {
 
 ### Playing with Ansible loops Lesson 6, Demo 3
 
-There is a lot of different ways that we could exercise variables but Lesson 6, Demo3 is a pretty good example and introduces loops and logic in ansble.  Go ahead and create a new file ```loops.yaml``` in the ```02_cmWithAnsibleTerraform/ansible/playbooks/``` directory, paste the following code, and save it.
+There is a lot of different ways that we could exercise variables but Lesson 6, Demo3 is a pretty good example and introduces loops and logic in ansible.  Go ahead and create a new file ```loops.yaml``` in the ```02_cmWithAnsibleTerraform/ansible/playbooks/``` directory, paste the following code, and save it.
 
 ```yaml
 --- # denotes start of YAML, not required but good practice
@@ -182,13 +182,13 @@ There is a lot of different ways that we could exercise variables but Lesson 6, 
         - index_two
 ```
 
-Since you should still have a terminal connection to ansible_manager we can easily run the new playbook.  If not, go ahead and connect with ```docker exec -it docker_ansible_manager-1 /bin/bash``` before continueing.
+Since you should still have a terminal connection to ansible_manager we can easily run the new playbook.  If not, go ahead and connect with ```docker exec -it docker_ansible_manager-1 /bin/bash``` before continuing.
 
 ```bash
 ansible-playbook /root/playbooks/loops.yaml
 ```
 
-Upon execution of the playbook, you will see the print messages exercised through three unique methods available in ansible (loop, with_items, and with_indexed_items).  They each perform the same basic function and the two 'with' options have actually been depricated with the loop, the flatten filter and loop_control.index_var controls since version 2.8 but you will still see their use often.  The official [documentation](https://docs.ansible.com/ansible/latest/user_guide/playbooks_loops.html#iterating-over-a-simple-list) provides some better examples and I have assembled them below.  Go ahead and create a new file ```exampleLoops.yaml``` in the ```02_cmWithAnsibleTerraform/ansible/playbooks/``` directory, paste the following code, and save it.
+Upon execution of the playbook, you will see the print messages exercised through three unique methods available in ansible (loop, with_items, and with_indexed_items).  They each perform the same basic function and the two 'with' options have actually been deprecated with the loop, the flatten filter and loop_control.index_var controls since version 2.8 but you will still see their use often.  The official [documentation](https://docs.ansible.com/ansible/latest/user_guide/playbooks_loops.html#iterating-over-a-simple-list) provides some better examples and I have assembled them below.  Go ahead and create a new file ```exampleLoops.yaml``` in the ```02_cmWithAnsibleTerraform/ansible/playbooks/``` directory, paste the following code, and save it.
 
 ```yaml
 --- # denotes start of YAML, not required but good practice
@@ -329,11 +329,11 @@ Move over to the ansible_manager command line and run the playbook.
 ansible-playbook /root/playbooks/exampleLoops.yaml
 ```
 
-This will show almost all of the options currently available in ansible.  Some of the website examples referenced variables that were not created, so I went ahead and added them as global playbook level variable.  This is actually a pretty good way to see local and playbook scope variables and even introduces the dictionary type.  I created a lazy definiton.  Please see, [YAML Syntax](https://docs.ansible.com/ansible/latest/reference_appendices/YAMLSyntax.html) for better examples.
+This will show almost all of the options currently available in ansible.  Some of the website examples referenced variables that were not created, so I went ahead and added them as global playbook level variable.  This is actually a pretty good way to see local and playbook scope variables and even introduces the dictionary type.  I created a lazy definition.  Please see, [YAML Syntax](https://docs.ansible.com/ansible/latest/reference_appendices/YAMLSyntax.html) for better examples.
 
 ### Playing with Ansible conditionals Lesson 6, Demo 4
 
-For the last part of lesson 6, lets go ahead and explore some of the conditional stetements found in ansible.  Go ahead and create a new file ```conditionals.yaml``` in the ```02_cmWithAnsibleTerraform/ansible/playbooks/``` directory, paste the following code, and save it.
+For the last part of lesson 6, lets go ahead and explore some of the conditional statements found in ansible.  Go ahead and create a new file ```conditionals.yaml``` in the ```02_cmWithAnsibleTerraform/ansible/playbooks/``` directory, paste the following code, and save it.
 
 ```yaml
 --- # denotes start of YAML, not required but good practice
@@ -341,7 +341,7 @@ For the last part of lesson 6, lets go ahead and explore some of the conditional
   tasks:
   - name: "Checking OS Family"
     debug: # built in print statement
-      msg: "You are running a {{ansible_facts['os_family']}} OS, distrobution {{ansible_facts['distribution']}} version {{ansible_facts['distribution_major_version']}}"
+      msg: "You are running a {{ansible_facts['os_family']}} OS, distribution {{ansible_facts['distribution']}} version {{ansible_facts['distribution_major_version']}}"
     when: ansible_facts['os_family'] == "Debian"
 ```
 
@@ -353,14 +353,14 @@ ansible-playbook /root/playbooks/conditionals.yaml
 
 This simple test is used to poll the ```os_family``` and ```distribution_major_version``` variable.  In our case, it is Debian as can be verified with the command ```ansible all -m ansible.builtin.setup``` and viewing the  ```"ansible_os_family": "Debian"``` line in the output.
 
-The ```when``` conditional is a little interesting if you are use to other languages as it appears at the end of the exectution block with all actual commands only executing on true.  This messed with my head a little the first time I encountered it.
+The ```when``` conditional is a little interesting if you are use to other languages as it appears at the end of the execution block with all actual commands only executing on true.  This messed with my head a little the first time I encountered it.
 
 Additionally, you may have noticed that I replaced the example text ```command: echo "Sample Message"``` with a debug message function.  I did this for two reasons.
 
 - I do not like registering changes if I am not doing anything, which the echo command will do
-- I wanted to be able to see the results for the ansible_manager isntead of dumping it to the client output
+- I wanted to be able to see the results for the ansible_manager instead of dumping it to the client output
 
-To see an example of multiple logical compares using the ```and``` keyword, ```or``` works the same way, and is only true when both are true.  Because this is YAML, you MUST enclose the conditional statement in paranthesis ```(CONDITIONS)``` if more that one codition is used.  
+To see an example of multiple logical compares using the ```and``` keyword, ```or``` works the same way, and is only true when both are true.  Because this is YAML, you MUST enclose the conditional statement in parenthesis ```(CONDITIONS)``` if more that one condition is used.  
 Go ahead and add the two named tasks to our  ```conditionals.yaml``` file and run it again from the ansible_manager to simulate an if/else logic.
 
 ```yaml
@@ -378,7 +378,7 @@ You may ask yourself, why would you use a series of ```when``` statements instea
 
 ## Lesson 7 - Jinja2
 
-Lesson 7 is fairly short and provides an introduction into leveraging jinja2 through ansible for more complex coding.  Jinja2 is a templating language for the interpretaion of Python commands, often used to add Python processing to web pages.  We will be using it to enhance Ansible.  If you are interested in more information check out the official documentation at [Jinja2](https://jinja2docs.readthedocs.io/en/stable/).
+Lesson 7 is fairly short and provides an introduction into leveraging jinja2 through ansible for more complex coding.  Jinja2 is a templateing language for the interpretation of Python commands, often used to add Python processing to web pages.  We will be using it to enhance Ansible.  If you are interested in more information check out the official documentation at [Jinja2](https://jinja2docs.readthedocs.io/en/stable/).
 
 Generally, we would need to update our Docker image to install but Jinja2 is so common, it was already installed with Ansible.  You can verify this by querying the debian package manager.
 
@@ -386,7 +386,7 @@ Generally, we would need to update our Docker image to install but Jinja2 is so 
 dpkg-query -l | grep python-jinja2
 ```
 
-You should be able to see version such as ```2.10-1ubuntu0.18.04.1``` is already available.  If not, then go ahead and install from ansible_manager comamand line with ```sudo apt-get install -y python-jinja2```.  Yep, the etire point of lab 1 with not real background on it.  Guess they hope the instructor tells you why.
+You should be able to see version such as ```2.10-1ubuntu0.18.04.1``` is already available.  If not, then go ahead and install from ansible_manager command line with ```sudo apt-get install -y python-jinja2```.  Yep, the entire point of lab 1 with no real background on it.  Guess they hope the instructor tells you why.
 
 ### Variables in jinja2Lesson 7, Demo 2
 
@@ -394,7 +394,7 @@ I almost left this one out as it has a really light use in our ansible class but
 
 For this exercise, we will create two two files.  The first ```index.j2``` will hold some content that jinja2 can interact with and the second ```jinja2_apache.yaml``` will be our playbook that leverage the jinja2 code.
 
-To start with, we will need to change our current docker-compose cofiguration for the ```webserver``` mount to allow the volume to be writable.  We will not touch the other images, containers.
+To start with, we will need to change our current docker-compose configuration for the ```webserver``` mount to allow the volume to be writable.  We will not touch the other images, containers.
 First, edit the ```02_cmWithAnsibleTerraform/ansible/docker/docker-compose.yaml``` file to remove the ``ro`` parameter from our mount
 
 ```yaml
@@ -406,21 +406,21 @@ First, edit the ```02_cmWithAnsibleTerraform/ansible/docker/docker-compose.yaml`
 
 Once the update is saved, we will need to not only restart the webserver but also remove the existing volume and create a new one.  This is easier done than said, so don't panic.
 
-Open a termial, or reuse an existing one on the local host and navigate to the ```02_cmWithAnsibleTerraform/ansible/docker/``` directory then issue:
+Open a terminal, or reuse an existing one on the local host and navigate to the ```02_cmWithAnsibleTerraform/ansible/docker/``` directory then issue:
 
 ```bash
 docker-compose down
 docker-compose up -d
 ```
 
-Once your containers come back up, they are all once again in a clean state and all previous changes will be gone.  Luckily, we have saved all of our scripts on the local host mounted as a volume, so to reinstall the apache web service reuising our existing script, once we attach to the ansible_manager, we need only the following commands.
+Once your containers come back up, they are all once again in a clean state and all previous changes will be gone.  Luckily, we have saved all of our scripts on the local host mounted as a volume, so to reinstall the apache web service reusing our existing script, once we attach to the ansible_manager, we need only the following commands.
 
 ```bash
 docker exec -it docker_ansible_manager-1 /bin/bash
 ansible-playbook /root/playbooks/localPlaybook.yaml
 ```
 
-This will once again install our apache pakcage and start the service.  To start the jinja2 specific exercise create a new file ```index.j2``` in the ```02_cmWithAnsibleTerraform/ansible/playbooks/``` directory, paste the following code, and save it.
+This will once again install our apache package and start the service.  To start the jinja2 specific exercise create a new file ```index.j2``` in the ```02_cmWithAnsibleTerraform/ansible/playbooks/``` directory, paste the following code, and save it.
 
 ```yaml
 A message from {{ inventory_hostname }}
@@ -459,7 +459,7 @@ Open a browser on your host system and enter ```http://localhost:8888/jinja.html
 A message from webserver I am running to the finish line.
 ```
 
-In this simple test case, the name "webserver" was pulled from the ansible inverntory variable inventory_hostname and the message from the ansible playbooks local variable webserver_message.  The original exercise was to overwrite the default homepage index.html but I didn't want to.
+In this simple test case, the name "webserver" was pulled from the ansible inventory variable inventory_hostname and the message from the ansible playbooks local variable webserver_message.  The original exercise was to overwrite the default homepage index.html but I didn't want to.
 
 Impressive? Not really, but it does provide a good foundation for Demo 4.
 
@@ -467,14 +467,14 @@ What about Lesson 7, Demo 3 you might ask?  Waste of time that does less than wh
 
 ### Variables in jinja2 filters Lesson 7, Demo 4
 
-While this exercise does not show us the real power of using jinja2 in our ansible, it does show off some of the filtering capability it brings in.  I am not going to spend a lot of time explaining what is going on as the commands are fairly self explanatory and cosists of two pieces.  
+While this exercise does not show us the real power of using jinja2 in our ansible, it does show off some of the filtering capability it brings in.  I am not going to spend a lot of time explaining what is going on as the commands are fairly self explanatory and consists of two pieces.  
 
 In the ```02_cmWithAnsibleTerraform/ansible/playbooks/``` directory create two new files:
 
 - syntaxFilter.yaml
 - defaultFilter.yaml
 
-and populate them with the follwoing:
+and populate them with the following:
 
 #### syntaxFilter.yaml
 
@@ -496,7 +496,7 @@ and populate them with the follwoing:
         - "My name is {{ my_name | title }}"
 ```
 
-#### syntaxFilter.yaml
+#### defaultFilter.yaml
 
 ```yaml
 ---
