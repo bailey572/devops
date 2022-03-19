@@ -4,6 +4,10 @@
   vars_files: # used to read in file content for playbook access
   - users.yaml
   tasks: 
+  - name: "add group" # add the group first or whole play will fail
+    group: # group module for adding new group to support user adds
+      name: simplilearn
+      state: present # make sure it is there
   - name: "add users"
     user: # user module for manipulation of user accounts
       name: "{{ item.name }}" # item auto created by with_items
@@ -13,6 +17,4 @@
       group: "{{ item.group }}"
     with_items: # loop through a list
       - "{{users}}" # just pull the users items from the vars_file
-  - name: "add group" 
-    group: # group module for adding new group to support user adds
-      name: simplilearn
+  
