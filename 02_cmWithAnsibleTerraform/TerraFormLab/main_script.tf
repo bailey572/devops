@@ -81,7 +81,7 @@ resource "aws_route_table_association" "test-crta-public-subnet-1" {
   route_table_id = aws_route_table.test-public-crt.id
 }
 
-// A security group that allows private network traffic only
+// A security group that defines network traffic
 resource "aws_security_group" "ec2_allow_rule" {
 
   ingress {
@@ -156,7 +156,7 @@ resource "aws_db_subnet_group" "RDS_subnet_grp" {
   subnet_ids = ["${aws_subnet.test-subnet-private-1.id}", "${aws_subnet.test-subnet-private-2.id}"]
 }
 
-// Create a relations database (RDS) instance
+// Create an Amazon Relational Database Service (RDS)  instance
 resource "aws_db_instance" "wordpressdb" {
   allocated_storage      = 10
   engine                 = "mysql"
@@ -198,7 +198,7 @@ data "aws_ami" "linux2" {
   }
 }
 
-// Create EC2 ( only after RDS is provisioned)
+// Create Amazon Elastic Compute Cloud (Amazon EC2) only after RDS is provisioned
 resource "aws_instance" "wordpressec2" {
   ami             = data.aws_ami.linux2.id
   instance_type   = var.instance_type

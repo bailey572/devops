@@ -40,7 +40,7 @@ terraform -install-autocomplete
 
 Please note: Terraform autocomplete is not required but a useful utility.
 
-Instruction source: https://learn.hashicorp.com/tutorials/terraform/install-cli?in=terraform/aws-get-started
+[Instruction source:](https://learn.hashicorp.com/tutorials/terraform/install-cli?in=terraform/aws-get-started)
 
 ### Install AWS CLI
 
@@ -53,14 +53,15 @@ unzip awscliv2.zip
 sudo ./aws/install
 ```
 
-Instruction source: https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
+[Instruction source:](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)
+
 ### Define a new user for AWS account
 
 In order to interact with the AWS Application Programming Interface (API) through the Terraform command line tool, you will need to have available a properly define user account.
 
 The values provided by the class lab do not work and to be successful, you will need to create a new user for credential based support.  
 
-Use the Practice Labs provided interface to access the AWS Web Console.  Open the Auth URL in a new tab to arrive a the AWS Management console.  In my case this was URL https://us-east-1.console.aws.amazon.com/console/home?region=us-east-1#.
+Use the Practice Labs provided interface to access the AWS Web Console.  Open the Auth URL in a new tab to arrive a the AWS Management console.  In my case this was URL <https://us-east-1.console.aws.amazon.com/console/home?region=us-east-1>#.
 Select All services to expand the list of options and select the AWS Identity and Access Manager (IAM)
 Select Users link (left side) and then the Add Users link (top right corner)
 Use the following values to walk through the wizard.
@@ -93,6 +94,8 @@ For this project, you will need to access the files contained in [TerraFormLab](
 
 clone or copy these files into a new working directory from [TerraFormLab](https://github.com/bailey572/devops/tree/main/02_cmWithAnsibleTerraform/TerraFormLab)
 
+I have extensively commented the files to describe the purpose and intent of both the GO and variable files.  Please review for a better understanding.
+
 ## Initialize Environment
 
 ### Terraform work area
@@ -116,6 +119,7 @@ Default output format [None]:
 ```
 
 Please note, depending on how long you go between steps and your AWS subscription, you may need to get new credentials.
+
 ### Generate SSH Key Pairs
 
 For internal, password less ssh access, we will generate a key pair (mykey-pair) and add to our instances on apply.  From the same directory issue:
@@ -180,22 +184,22 @@ RDS-Endpoint = "terraform-20220319153903574000000004.cgzcsyaqnbmc.us-east-1.rds.
 
 Once done, the instance is ready for access.  To do so, access the public wordpress instance provided by the INFO output ```INFO = "AWS Resources and Wordpress has been provisioned. Go to http://34.207.18.39"``` through a web browser.  This will lead you to the administrator configuration wizard of wordpress.
 
-To see the full depoyment, use the AWS Web Console website and look under the EC2 instances.  This can be found through the search bar by looking for EC2.  For me, the URL is [EC2](
+To see the full deployment, use the AWS Web Console website and look under the EC2 instances.  This can be found through the search bar by looking for EC2.  For me, the URL is [EC2](
 https://us-east-1.console.aws.amazon.com/ec2/v2/home?region=us-east-1#Instances:)
 
 Once you locate the instances ID, view the configuration details.  Selecting the Instance ID will provide several tabs.
 
 - Details - will show that the platform is Linux/Unix and the Key pair is present
 - Security - shows the security group rules defined in main_script.tf
-  - sgr-0a4bd5514604815ee	22	TCP	0.0.0.0/0	terraform-20220319153845641100000001
-  - sgr-0723d70b9ad114b7a	3306	TCP	0.0.0.0/0	terraform-20220319153845641100000001
-  - sgr-0dc33464fbb0aaed0	443	TCP	0.0.0.0/0	terraform-20220319153845641100000001
-  - sgr-0d82595d032e08f80	80	TCP	0.0.0.0/0	terraform-20220319153845641100000001
+  - sgr-0a4bd5514604815ee 22 TCP 0.0.0.0/0 terraform-20220319153845641100000001
+  - sgr-0723d70b9ad114b7a 3306 TCP 0.0.0.0/0 terraform-20220319153845641100000001
+  - sgr-0dc33464fbb0aaed0 443 TCP 0.0.0.0/0 terraform-20220319153845641100000001
+  - sgr-0d82595d032e08f80 80 TCP 0.0.0.0/0 terraform-20220319153845641100000001
 - Network - shows the VPC and Subnet defined in main_script.tf
 - Storage - Displays our data allocation size of 8 GiB
 
 To connect directly, to the instance, select the Connect icon and use the EC2 Instance Connect. This will log you into a web based terminal where you can see the installation of php and httpd through ```systemctl status```.
-For specifics on the WordPress intallation, review the wp-config.php file to see the database connection ```cat /var/www/html/wp-config.php | more```
+For specifics on the WordPress installation, review the wp-config.php file to see the database connection ```cat /var/www/html/wp-config.php | more```
 
 To make and apply changes to the tf file, you will need to use:
 
