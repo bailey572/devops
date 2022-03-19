@@ -8,7 +8,7 @@ services:
   # A Service is an abstract definition of a computing resource within an application which can be scaled/replaced independently from other components.
   ansible_manager:
     # Set a static hostname in the image so we do not have to use IP's
-    hostname: ansible_manager
+    hostname: manager
     # Define the build section to define how to create the manager docker image
     build: 
       # Define relative path starting location
@@ -26,9 +26,28 @@ services:
     # Tell compose to keep containers running interactive and with a tty
     stdin_open: true # docker run -i (interactive)
     tty: true        # docker run -t (tty)
-  ansible_client:
+  ansible_client1:
     # Set a static hostname in the image so we do not have to use IP's
-    hostname: ansible_client
+    hostname: client1
+    # Define the build section to define how to create the client docker image
+    build: 
+      # Define relative path starting location
+      context: '.'
+      # Set location of Dockerfile for image build
+      dockerfile: "./client/Dockerfile"
+    # define list of exposed ports that Compose implementations MUST expose from container.
+    expose: 
+      - 22
+    # assign to ansible network
+    networks:
+      - ansible-net
+    # Tell compose to keep containers running interactive and with a tty
+    stdin_open: true # docker run -i (interactive)
+    tty: true        # docker run -t (tty)
+
+  ansible_client2:
+    # Set a static hostname in the image so we do not have to use IP's
+    hostname: client2
     # Define the build section to define how to create the client docker image
     build: 
       # Define relative path starting location

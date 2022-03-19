@@ -11,8 +11,9 @@
 # Because this is target to a system with an active domain name system (DNS) use host names 
 # as defined in the docker-compose file since IP addresses will be automatically assigned by docker.
 [foundation]
-ansible_manager
-ansible_client
+manager
+client1
+client2
 
 [webservers]
 webserver

@@ -1,5 +1,5 @@
 --- # denotes start of YAML, not required but good practice
-  - hosts: ansible_client # target the ansible_client node
+  - hosts: client1 # target the ansible_client node
     tasks: # section for collection of named tasks
     - name: loop # task name
       debug: # built in print statement
