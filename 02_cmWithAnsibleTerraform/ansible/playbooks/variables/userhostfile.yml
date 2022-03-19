@@ -1,0 +1,19 @@
+---
+- hosts: all
+  tasks:
+        - name: Add simplilearn User Group
+          group:
+            name: simplilearn
+        - name: Add  "{{ usr1 }}"
+          user:
+            name: "{{ usr1 }}"
+            state: "{{ mystate }}"
+        - name: printing the pkg value
+          debug:
+                 msg: "{{ pkg }}"
+        - name: printing the usr1 value
+          debug:
+                 msg: "{{ usr1 }}"
+        - name: printing the myvar value
+          debug:
+                 msg: "{{ myvar }}"

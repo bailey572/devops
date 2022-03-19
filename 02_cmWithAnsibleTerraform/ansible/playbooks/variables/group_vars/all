@@ -1,0 +1,4 @@
+myvar: hello
+mystate: present
+usr1: FromAll
+pkg: telnet
