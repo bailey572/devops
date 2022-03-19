@@ -201,7 +201,11 @@ Once you locate the instances ID, view the configuration details.  Selecting the
 To connect directly, to the instance, select the Connect icon and use the EC2 Instance Connect. This will log you into a web based terminal where you can see the installation of php and httpd through ```systemctl status```.
 For specifics on the WordPress installation, review the wp-config.php file to see the database connection ```cat /var/www/html/wp-config.php | more```
 
-To make and apply changes to the tf file, you will need to use:
+To see the database instance use the AWS Web Console website and look under the RDS instances to review the MySQL instance and its security groups.
+
+## Clean up or restart
+
+To make and apply changes to the tf file, you will need to use the destroy option followed by the apply option.  To just remove your instance, just execute destroy.
 
 ```bash
 terraform destroy
