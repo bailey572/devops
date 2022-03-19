@@ -45,140 +45,11 @@ Secret Access Key [****************PDd+]: iIDGMyBKyS5NkzfTNmSujbKrtRENVRi6+wv3+D
 
 ## Define the terraform configuration
 
+Righteously stolen from https://www.devbhusal.com/using-terraform-to-automate-wordpress-installation-with-aws-ec2-instance-and-rds/
 Paste in the following to main.tf
 nano main.tf
 
 ```GO
-terraform {
-   // Specify who is providing the infrastructure
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws" // we are using AWC
-      version = "~> 3.27"
-    }
-  }
-
-  required_version = ">= 0.14.9"
-}
-
-provider "aws" {
-  profile = "default"
-  region  = "us-east-1"  // our account allows for us-east-1 or us-east-2 farms
-}
-
-//variable "key_name" {}
-
-// resource keyword defines infrastructure objects
-
-// Generates a secure private key and encodes it as PEM. 
-resource "tls_private_key" "example" {
-  algorithm = "RSA"
-  rsa_bits  = 4096
-}
-
-// Provides an EC2 key pair resource. A key pair is used to control login access to EC2 instances.
-resource "aws_key_pair" "generated_key" {
-  key_name   = var.key_name
-  public_key = tls_private_key.example.public_key_openssh
-}
-
-// Defines the Virtual Private Cloud (VPC)
-resource "aws_vpc" "test-env" {
-  vpc_id = "${aws_vpc.test-env.id}"
-  cidr_block = "10.0.0.0/16"
-  enable_dns_hostnames = true
-  enable_dns_support = true
-}
-
-// Define the gateway to allow external access and obtain a public IP address
-resource "aws_internet_gateway" "test-env-gw" {
-  vpc_id = "${aws_vpc.test-env.id}"
-}
-
-// A security group that allows private network traffic only
-resource "aws_security_group" "ingress-all-test" {
-name = "allow-all-sg"
-vpc_id = "${aws_vpc.test-env.id}"
-ingress {
-    cidr_blocks = [
-      "0.0.0.0/0"
-    ]
-from_port = 22
-    to_port = 22
-    protocol = "tcp"
-  }
-// Terraform removes the default rule
-  egress {
-   from_port = 0
-   to_port = 0
-   protocol = "-1"
-   cidr_blocks = ["0.0.0.0/0"]
- }
-}
-
-resource "aws_subnet" "subnet-uno" {
-  cidr_block = "${cidrsubnet(aws_vpc.test-env.cidr_block, 3, 1)}"
-  vpc_id = "${aws_vpc.test-env.id}"
-  availability_zone = "us-east-1a"
-}
-
-resource "aws_route_table" "route-table-test-env" {
-  vpc_id = "${aws_vpc.test-env.id}"
-route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = "${aws_internet_gateway.test-env-gw.id}"
-  }
-}
-resource "aws_route_table_association" "subnet-association" {
-  subnet_id      = "${aws_subnet.subnet-uno.id}"
-  route_table_id = "${aws_route_table.route-table-test-env.id}"
-}
-
-resource "aws_instance" "main_instance" {
-  ami           = "ami-08e4e35cccc6189f4"
-  instance_type = "t2.micro"
-  key_name = aws_key_pair.generated_key.key_name
-  security_groups = ["${aws_security_group.ingress-all-test.id}"]
-  subnet_id = "${aws_subnet.subnet-uno.id}"
-
-  tags = {
-    Name = "MainVM"
-  }
-  
-  provisioner "local-exec" {
-    command = "grep \"private_key_pem\" terraform.tfstate | sed 's/\\\\n/\\n/g' | head -n -1 | tr \"\\\"\" \"\\n\" | tail +4 > ssh_key.private  ; chmod 600 ssh_key.private"
-  }
-}
-
-
-resource "aws_eip" "ip-test-env" {
-  instance = "${aws_instance.main_instance.id}"
-  vpc      = true
-}
-
-resource "null_resource" "install_packages" {
-
-  
-  provisioner "remote-exec" {
-    
-    inline = [
-    "sudo yum -y install java-1.8.0-openjdk-devel",
-    "sudo yum -y install python3",
-    "sudo wget -O /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins.repo",
-    "sudo rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io.key",
-    "sudo yum -y install jenkins-2.19.3-1.1 --nogpgcheck",
-    "sudo systemctl daemon-reload"
-    ]
- 
-  connection {
-      type        = "ssh"
-      host        = "${aws_eip.ip-test-env.public_ip}"
-      user        = "ec2-user"
-      private_key = file("ssh_key.private")
-      timeout     = "10m"
-   }
-   }
-}
 
 ```
 
@@ -194,15 +65,22 @@ AWS Secret Access Key [****************PDd+]: iIDGMyBKyS5NkzfTNmSujbKrtRENVRi6+w
 Default region name [us-east-1]: us-east-1
 Default output format [None]: 
 
-terraform validate
+terraform plan -var-file="user.tfvars"
+terraform validate -var-file="user.tfvars"
 terraform apply
 yes
 ```
 
 Once done head back to AWS Web Console website and look under the EC2 instances.  Use search bar and find EC2.
+https://us-east-1.console.aws.amazon.com/ec2/v2/home?region=us-east-1#Instances:
 Under the EC2 instance connect, you will see the IP address.  You can use this to see you instance through the web browser of sss.  My IP was 34.204.215.126 so:
 ssh -i ssh_key.private ec2-user@34.204.215.126
-http://34.204.215.126:8080
+http://52.201.173.3/
+
+Site Title: Initial Test
+UserName: joebob
+Password: sjFQd#o*OZYf06dPre
+Email: bailey572@msn.com
 
 To make and apply changes to the tf file, you will need to use:
 
