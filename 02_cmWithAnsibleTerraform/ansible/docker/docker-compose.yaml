@@ -22,7 +22,7 @@ services:
     volumes:
       - ../playbooks/:/root/playbooks:ro    # This will mount the dir as read only
     networks:
-      - ansible-net
+      - ansible_net
     # Tell compose to keep containers running interactive and with a tty
     stdin_open: true # docker run -i (interactive)
     tty: true        # docker run -t (tty)
@@ -40,7 +40,7 @@ services:
       - 22
     # assign to ansible network
     networks:
-      - ansible-net
+      - ansible_net
     # Tell compose to keep containers running interactive and with a tty
     stdin_open: true # docker run -i (interactive)
     tty: true        # docker run -t (tty)
@@ -59,10 +59,30 @@ services:
       - 22
     # assign to ansible network
     networks:
-      - ansible-net
+      - ansible_net
     # Tell compose to keep containers running interactive and with a tty
     stdin_open: true # docker run -i (interactive)
     tty: true        # docker run -t (tty)
+  
+  ansible_client3:
+    # Set a static hostname in the image so we do not have to use IP's
+    hostname: client3
+    # Define the build section to define how to create the client docker image
+    build: 
+      # Define relative path starting location
+      context: '.'
+      # Set location of Dockerfile for image build
+      dockerfile: "./AWSclient/Dockerfile"
+    # define list of exposed ports that Compose implementations MUST expose from container.
+    expose: 
+      - 22
+    # assign to ansible network
+    networks:
+      - ansible_net
+    # Tell compose to keep containers running interactive and with a tty
+    stdin_open: true # docker run -i (interactive)
+    tty: true        # docker run -t (tty)
+
   webserver:
     # Set a static hostname in the image so we do not have to use IP's
     hostname: webserver
@@ -81,11 +101,10 @@ services:
     volumes:
       - ./webserver/apache:/var/www/html    # This will mount the dir as read only
     networks:
-      - ansible-net
+      - ansible_net
     # Tell compose to keep containers running interactive and with a tty
     stdin_open: true # docker run -i (interactive)
     tty: true        # docker run -t (tty)
 networks:
-  ansible-net:
-    driver: bridge
+  ansible_net:
 
