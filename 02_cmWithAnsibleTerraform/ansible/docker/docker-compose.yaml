@@ -6,7 +6,7 @@ version: "3.3"
 services:
   # Define the dictionary for the ansible_manager service
   # A Service is an abstract definition of a computing resource within an application which can be scaled/replaced independently from other components.
-  ansible_manager:
+  manager:
     # Set a static hostname in the image so we do not have to use IP's
     hostname: manager
     # Define the build section to define how to create the manager docker image
@@ -20,13 +20,13 @@ services:
       - 22
     # assign to ansible network
     volumes:
-      - ../playbooks/:/root/playbooks:ro    # This will mount the dir as read only
+      - ../playbooks/:/root/playbooks:rw    # This will mount the dir as read and write
     networks:
       - ansible_net
     # Tell compose to keep containers running interactive and with a tty
     stdin_open: true # docker run -i (interactive)
     tty: true        # docker run -t (tty)
-  ansible_client1:
+  client1:
     # Set a static hostname in the image so we do not have to use IP's
     hostname: client1
     # Define the build section to define how to create the client docker image
@@ -45,7 +45,7 @@ services:
     stdin_open: true # docker run -i (interactive)
     tty: true        # docker run -t (tty)
 
-  ansible_client2:
+  client2:
     # Set a static hostname in the image so we do not have to use IP's
     hostname: client2
     # Define the build section to define how to create the client docker image
@@ -64,7 +64,7 @@ services:
     stdin_open: true # docker run -i (interactive)
     tty: true        # docker run -t (tty)
   
-  ansible_client3:
+  client3:
     # Set a static hostname in the image so we do not have to use IP's
     hostname: client3
     # Define the build section to define how to create the client docker image
@@ -72,7 +72,7 @@ services:
       # Define relative path starting location
       context: '.'
       # Set location of Dockerfile for image build
-      dockerfile: "./AWSclient/Dockerfile"
+      dockerfile: "./RHclient/Dockerfile"
     # define list of exposed ports that Compose implementations MUST expose from container.
     expose: 
       - 22

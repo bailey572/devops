@@ -1,5 +1,5 @@
 # Base manager off of official ubuntu v18.04 image
-FROM redhat/ubi8
+FROM almalinux:8.5
 # Identify the maintainer of custom image
 LABEL maintainer=bailey572@msn.com
 # Specify zero interactions are required during installation/upgrades (uses default answers)
@@ -22,12 +22,5 @@ COPY ./ansible_keys/ansible_id_rsa_shared.pub /root/.ssh/authorized_keys
 EXPOSE 22
 # Ensure the permissions are correct
 RUN chmod -R 600 /root/.ssh
-
-
-#CMD [“sleep”, “infinity”]
 #  Use the entrypoint to start the ssh service and bash to keep from exiting
-#ENTRYPOINT ["/bin/sh", "FOREGROUND"]
-#CMD ["bash",  "FOREGROUND"]
-#ENTRYPOINT ["/bin/chamber", "exec", "production", "--"]
-#ENTRYPOINT ["systemctl", "status", "sshd"]
-ENTRYPOINT [ "sh" ]
+ENTRYPOINT service ssh restart && bash

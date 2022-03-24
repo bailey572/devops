@@ -1,5 +1,5 @@
 --- # denotes start of YAML, not required but good practice
-- hosts: ansible_client # target the ansible_client node
+- hosts: all # target the ansible_client node
   tasks:
   - name: "Checking OS Family"
     debug: # built in print statement

@@ -31,5 +31,7 @@ COPY ./ansible_keys/ansible_id_rsa_shared.pub /root/.ssh/authorized_keys
 EXPOSE 22
 # Ensure the permissions are correct
 RUN chmod -R 600 /root/.ssh
+# Define working dir on the bash console
+WORKDIR /root/playbooks
 #  Use the entrypoint to start the ssh service and bash to keep from exiting
 ENTRYPOINT service ssh restart && bash
