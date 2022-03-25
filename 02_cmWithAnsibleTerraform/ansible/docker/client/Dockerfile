@@ -1,5 +1,5 @@
 # Base manager off of official ubuntu v18.04 image
-FROM ubuntu:18.04
+FROM ubuntu:20.04
 # Identify the maintainer of custom image
 LABEL maintainer=bailey572@msn.com
 # Specify zero interactions are required during installation/upgrades (uses default answers)

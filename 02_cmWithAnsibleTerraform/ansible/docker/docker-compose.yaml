@@ -21,6 +21,7 @@ services:
     # assign to ansible network
     volumes:
       - ../playbooks/:/root/playbooks:rw    # This will mount the dir as read and write
+      - ${PWD}/manager/ansible_hosts:/etc/ansible/hosts
     networks:
       - ansible_net
     # Tell compose to keep containers running interactive and with a tty

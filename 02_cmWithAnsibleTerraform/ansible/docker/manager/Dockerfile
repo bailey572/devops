@@ -1,5 +1,5 @@
 # Base manager off of official ubuntu v18.04 image
-FROM ubuntu:18.04
+FROM ubuntu:20.04
 # Identify the maintainer of custom image
 LABEL maintainer=bailey572@msn.com
 # Specify zero interactions are required during installation/upgrades (uses default answers)
@@ -18,7 +18,7 @@ RUN apt install openssh-server -y
 # Copy over the configured sshd_config to allow remote root login
 COPY ./client/sshd_config /etc/ssh/
 # Copy over the configured ansible_hosts file to expose the inventory
-COPY ./manager/ansible_hosts /etc/ansible/hosts
+#COPY ./manager/ansible_hosts /etc/ansible/hosts
 # Create a directory to hold the private key 
 RUN mkdir /root/.ssh
 # disable StrictHostKeyChecking to automatically add remotehost to the images known hosts
