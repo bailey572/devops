@@ -94,7 +94,7 @@ It should be noted that just about any linux command, or series of commands, can
 
 ***---Do not make it a habit----***
 
-# First Play Book
+## First Play Book
 
 While we could execute ansible modules directly from the command line, and there are [A LOT](https://docs.ansible.com/ansible/2.7/modules/list_of_all_modules.html) of them to choose from.  Best practices really are to issue the command through Play Books.
 
@@ -463,6 +463,7 @@ ports:
 Now we just need to bring the containers back up.
 
 Because we used ansible to start the service last time but brought down the system, we have a couple of options.  
+
 - we could rerun the ansible script from the manager node
 - we could manually start the service from the webserver node
 

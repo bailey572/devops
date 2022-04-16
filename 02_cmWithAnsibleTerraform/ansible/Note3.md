@@ -98,4 +98,83 @@ Don't believe me, just rename all.yml to all and run again.  Works the same.
 
 ## Lesson 8 - Playing with roles
 
+I am not going to lie, Roles are just a preformatted configuration for working with Ansible.  I could do a write up but [tutorialpoint](https://www.tutorialspoint.com/ansible/ansible_roles.htm?msclkid=cedc0ec6bd9611eca94e082ea301bb22) does a much better job than I.  Basically, use the tool a create the structure.
+
+```bash
+$ ansible-galaxy init --force --offline vivekrole 
+- vivekrole was created successfully 
+
+$ tree vivekrole/ 
+vivekrole/ 
+├── defaults 
+│   └── main.yml 
+├── files ├── handlers 
+│   └── main.yml 
+├── meta 
+│   └── main.yml 
+├── README.md ├── tasks 
+│   └── main.yml 
+├── templates ├── tests │   ├── inventory 
+│   └── test.yml 
+└── vars 
+    └── main.yml 
+ 
+8 directories, 8 files
+```
+
 ## Lesson 9 - Ansible-vault
+
+Ansible-vault is the command-line tool, which is used on the Ansible server to do below tasks
+
+- Encrypt an existing important file.
+- Decrypt an encrypted file.
+- View an encrypted file without breaking the encryption.
+- Edit an encrypted file and maintain its encryption and secret key/ password.
+- Create a new encrypted file.
+- Rekey or reset the password of an already encrypted file.
+
+### Encrypt existing
+
+```bash
+touch testVault.txt
+ansible-vault encrypt testVault.txt
+  New Vault password:
+  Confirm New Vault password:
+  Encryption successful
+```
+
+### Decrypt
+
+```bash
+ansible-vault decrypt testVault.txt
+Vault password:
+Decryption successful
+```
+
+### View encrypted
+
+```bash
+ansible-vault view testVault.txt
+Vault password:
+```
+
+### Edit encrypted
+
+```bash
+ansible-vault edit testVault.txt
+Vault password:
+```
+
+### Create new encrypted
+
+```bash
+ansible-vault create testVault2.txt
+New Vault password:
+Confirm New Vault password
+```
+
+### Reset password
+
+```bash
+
+```
