@@ -3,16 +3,19 @@
 ## Build a basic NGINX server
 
 Create the directory and Dockerfile
-```
+
+```bash
 mkdir demo
 cd demo
 touch Dockerfile
 wget 'https://github.com/bailey572/devops/blob/main/docker/demo/index.nginx-debian.html'
 ```
+
 ## Populate the Dockerfile
 
 Edit the Dockerfile created earlier with the touch command.
-```
+
+```bash
 FROM ubuntu
 RUN apt update
 RUN apt install -y nginx
@@ -54,7 +57,8 @@ In this case we are choosing port 80 using the default TCP protocol.
 ## Build the new image
 
 To build the image, ensure you are in the root directory containing the Dockerfile and issue the following command.
-```
+
+```bash
 docker build -t="bailey572/static_web:v1" .
 ```
 
@@ -62,7 +66,8 @@ This will pull down the ubuntu image and begin executing the commands to build o
 The ***-t=*** option is used to specify the new image name.  The ***:v1*** appends a version tag to the image.
 
 If everything went right, you should see similar output.
-```
+
+```bash
 [+] Building 102.2s (10/10) FINISHED
  => [internal] load build definition from Dockerfile                                                                               0.0s
  => => transferring dockerfile: 177B                                                                                               0.0s
@@ -91,7 +96,8 @@ If everything went right, you should see similar output.
 If you look closely, you will notice the first four instructions from the Dockerfile along with the creation of the final image.  The last two steps, CMD & EXPOSE, are not part of the build but the configuration and are exercise during the run portion of an instance.
 
 Issuing the docker images command will display all available images including our newly created one.
-```
+
+```bash
 $docker images
 REPOSITORY             TAG       IMAGE ID       CREATED         SIZE
 bailey572/static_web   v1        ce0fa0135a1f   5 minutes ago   165MB
@@ -100,13 +106,14 @@ bailey572/static_web   v1        ce0fa0135a1f   5 minutes ago   165MB
 ## Run an instance of the new image
 
 Now that we have an image to work with, we can run as many instances as we wish based on it.  To do so, issue the docker command with the ***run*** option.  The ***-d*** flag tells docker to issue the run detached to keep from locking up our terminal.
-```
-$ docker run -d -p 80 --name static_web ce0fa0135a1f
+
+```bash
+docker run -d -p 80 --name static_web ce0fa0135a1f
 ```
 
 Now verify that it is successfully running with the ***ps*** option.
 
-```
+```bash
 $ docker ps
 CONTAINER ID   IMAGE          COMMAND                  CREATED              STATUS              PORTS                   NAMES
 c1043d829ae6   ce0fa0135a1f   "/bin/sh -c 'nginx -…"   About a minute ago   Up About a minute   0.0.0.0:60817->80/tcp   static_web
@@ -122,7 +129,7 @@ To view the web server in action open a browser and got to http://localhost:6081
 
 To clean up the instance, go ahead and stop and then remove it.  Below is a capture of a console doing a listing, then issuing a stop command, before finally removing it and listing instances again.  Please note, if you just want to stop the instance and run it again later, you can exit at the stop command and later issue a ***docker start static_web*** command.
 
-```
+```bash
 $ docker ps -a
 CONTAINER ID   IMAGE          COMMAND                  CREATED          STATUS         PORTS                   NAMES
 c1043d829ae6   ce0fa0135a1f   "/bin/sh -c 'nginx -…"   41 minutes ago   Up 2 minutes   0.0.0.0:52295->80/tcp   static_web
