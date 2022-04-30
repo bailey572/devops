@@ -10,7 +10,9 @@ Ultimately, I went with K3S installed on two machines, insp & asus.  I will prob
 
 Official repo: [K3S GitHub](https://github.com/k3s-io/k3s)
 
-## Configure the cluster
+## Setup
+
+### Configure the cluster
 
 Directions: [K3S Rancher](https://rancher.com/docs/k3s/latest/en/installation/install-options/)
 
@@ -24,7 +26,7 @@ curl -sfL https://get.k3s.io | sh -
 
 A kubeconfig file is written to /etc/rancher/k3s/k3s.yaml and the service is automatically started or restarted. The install script will install K3s and additional utilities, such as kubectl, crictl, k3s-killall.sh, and k3s-uninstall.sh
 
-## Configure Nodes
+### Configure Nodes
 
 Directions: [K3S Rancher](https://rancher.com/docs/k3s/latest/en/installation/install-options/)
 
@@ -32,12 +34,12 @@ K3S_TOKEN is created at /var/lib/rancher/k3s/server/node-token on your server. T
 
 curl -sfL https://get.k3s.io | K3S_URL=https://myserver:6443 K3S_TOKEN=XXX sh -
 
-## Download and install the Dashboard UI
+### Download and install the Dashboard UI
 
 ```bash
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.5.0/aio/deploy/recommended.yaml
 ```
-#### Access the Dashboard UI
+##### Access the Dashboard UI
 
 To protect your cluster data, Dashboard deploys with a minimal RBAC configuration by default. Currently, Dashboard only supports logging in with a Bearer Token. To do so we will need to create a new user using the Service Account mechanism of Kubernetes, grant this user admin permissions and login to Dashboard using a bearer token tied to this user. 
 
@@ -106,17 +108,195 @@ kubernetes-dashboard   ClusterIP   10.43.32.105   <none>        443/TCP   82d
 ```
 Go to the page: http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/#/login and login with the token
 
-## Add Work
+### Install full K8S if you so desire (Will need to remove K3s first)
+[Reference of Installation](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/)
 
-## Fun with kubectl
+#### On Master Node
+```bash
+sudo apt-get update
+sudo apt-get install -y apt-transport-https ca-certificates curl
+sudo apt-cache madison kubeadm
+sudo apt-get install -y kubelet kubeadm kubectl
+sudo hostnamectl set-hostname master.example.com
+```
 
-### Example Configuration
+#### On all other Nodes (Repeat for ALL) 
+```bash
+sudo apt-get update
+sudo apt-get install -y kubelet kubeadm kubectl
+sudo kubeadm init
+sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+sudo chown $(id -u):$(id -g) $HOME/.kube/config
+kubectl get nodes
+```
+
+## Fun with kubectl from the command line
+
+
+### The create command
+
+While you will often use yaml scripts to define resources and rules, kubectl allows you to do most things directly from the command line.
+
+```bash
+ kubectl create --help
+Create a resource from a file or from stdin.
+
+ JSON and YAML formats are accepted.
+
+Examples:
+  # Create a pod using the data in pod.json
+  kubectl create -f ./pod.json
+
+  # Create a pod based on the JSON passed into stdin
+  cat pod.json | kubectl create -f -
+
+  # Edit the data in docker-registry.yaml in JSON then create the resource using the edited data
+  kubectl create -f docker-registry.yaml --edit -o json
+
+Available Commands:
+  clusterrole         Create a cluster role
+  clusterrolebinding  Create a cluster role binding for a particular cluster role
+  configmap           Create a config map from a local file, directory or literal value
+  cronjob             Create a cron job with the specified name
+  deployment          Create a deployment with the specified name
+  ingress             Create an ingress with the specified name
+  job                 Create a job with the specified name
+  namespace           Create a namespace with the specified name
+  poddisruptionbudget Create a pod disruption budget with the specified name
+  priorityclass       Create a priority class with the specified name
+  quota               Create a quota with the specified name
+  role                Create a role with single rule
+  rolebinding         Create a role binding for a particular role or cluster role
+  secret              Create a secret using specified subcommand
+  service             Create a service using a specified subcommand
+  serviceaccount      Create a service account with the specified name
+```
+
+```bash
+kubectl get deployment
+NAME           READY   UP-TO-DATE   AVAILABLE   AGE
+redis-slave    2/2     2            2           21h
+frontend       3/3     3            3           21h
+redis-master   1/1     1            1           21h
+
+kubectl create deployment mydep1 --image=docker.io/httpd
+deployment.apps/mydep1 created
+
+kubectl get deployment
+NAME           READY   UP-TO-DATE   AVAILABLE   AGE
+redis-slave    2/2     2            2           21h
+frontend       3/3     3            3           21h
+redis-master   1/1     1            1           21h
+mydep1         1/1     1            1           10s
+
+kubectl scale deployments mydep1 --replicas=3
+deployment.apps/mydep1 scaled
+
+kubectl get deployment
+NAME           READY   UP-TO-DATE   AVAILABLE   AGE
+redis-slave    2/2     2            2           21h
+frontend       3/3     3            3           21h
+redis-master   1/1     1            1           21h
+mydep1         3/3     3            3           52s
+
+kubectl expose deployment mydep1 --port=80
+service/mydep1 exposed
+
+kubectl get svc
+NAME          TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)        AGE
+kubernetes    ClusterIP   10.43.0.1      <none>        443/TCP        83d
+redis         ClusterIP   10.43.99.96    <none>        6379/TCP       21h
+redis-slave   ClusterIP   10.43.54.55    <none>        6379/TCP       21h
+frontend      NodePort    10.43.156.91   <none>        80:30049/TCP   21h
+mydep1        ClusterIP   10.43.80.30    <none>        80/TCP         10s
+```
+
+## Cofigurations through Yaml
+
+### Apache 3 Pod
+
+Just a quick deployment and checkout of an apache instance using yaml.  To begin, create a file and populate.
+
+```yaml
+vi apachePod.yml
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: apache3
+  labels:
+    mycka: simplilearn
+spec:
+  containers:
+  - name: mycontainer
+    image: docker.io/httpd
+    ports:
+    - containerPort: 80
+```
+
+Now we create the pod, poll the system while it spins up, and then test it with a curl.
+
+```bash
+kubectl create -f apachepod.yml
+kubectl create -f ./deployments/apachePod.yml 
+pod/apache3 created
+
+kubectl get pods  -o wide
+kubectl get pods  -o wide
+NAME                           READY   STATUS    RESTARTS      AGE   IP            NODE            NOMINATED NODE   READINESS GATES
+apache3                        1/1     Running   0             3s    10.42.0.14    inspiron-3650   <none>           <none>
+
+curl 10.42.0.14
+<html><body><h1>It works!</h1></body></html>
+```
+### Mysql Pod creation
+
+```yaml
+vi ./deployments/mysql.yaml
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mysql-pod2
+  labels:
+    name: mysql-pod1
+    context: docker-k8s-lab
+spec:
+  containers:
+    - name: mysql2
+      image: mysql:latest
+      env:
+        - name: "MYSQL_USER"
+          value: "mysql"
+        - name: "MYSQL_PASSWORD"
+          value: "mysql"
+        - name: "MYSQL_DATABASE"
+          value: "sample"
+        - name: "MYSQL_ROOT_PASSWORD"
+          value: "supersecret"
+      ports:
+        - containerPort: 3306
+```
+
+```bash
+kubectl create -f ./deployments/mysql.yaml 
+
+pod/mysql-pod2 created
+kubectl get pods
+
+NAME                           READY   STATUS              RESTARTS      AGE
+apache3                        1/1     Running             0             10m
+mysql-pod2                     0/1     ContainerCreating   0             13s
+```
+### Multiple pods with Redis
 
 Let's create a sample redis deployment.
 
 Create a file, kubesample.yaml, and populate with the following content
 
 ```yaml
+vi ./deployments/kubesample.yaml
+
 apiVersion: v1
 kind: Service
 metadata:
@@ -259,56 +439,102 @@ spec:
 
 ```
 
-Verify what is currently running
+Verify what is currently running.  Notice this time we are using get all instead of get pod. This will still show all the pods but provides even more information
 
 ```bash
 kubectl get all
-NAME                 TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)   AGE
-service/kubernetes   ClusterIP   10.43.0.1    <none>        443/TCP   82d
+
+NAME                          READY   STATUS    RESTARTS   AGE
+pod/mydep1-6b7cfdd955-b67pq   1/1     Running   0          46m
+pod/mydep1-6b7cfdd955-vqvd6   1/1     Running   0          45m
+pod/mydep1-6b7cfdd955-qt28h   1/1     Running   0          45m
+pod/apache3                   1/1     Running   0          15m
+pod/mysql-pod2                1/1     Running   0          5m22s
+
+NAME                 TYPE        CLUSTER-IP    EXTERNAL-IP   PORT(S)   AGE
+service/kubernetes   ClusterIP   10.43.0.1     <none>        443/TCP   83d
+service/mydep1       ClusterIP   10.43.80.30   <none>        80/TCP    43m
+
+NAME                     READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/mydep1   3/3     3            3           46m
+
+NAME                                DESIRED   CURRENT   READY   AGE
+replicaset.apps/mydep1-6b7cfdd955   3         3         3       46m
 ```
 
-Go ahead and apply the K8s yaml file.
+Great!  We can see that the pods we created earlier are still up and running, in fact we can also see the service created directly from the command line when we issued the  ```kubectl create deployment mydep1 --image=docker.io/httpd``` command.
 
+To start up the next pods, we are going to switch from the create command to the apply.  While create would work, there are very real differences between create and apply
+
+#### Kubectl create
+
+When we talk about kubectl create, it comes under the category of imperative management. Now, what does this mean?
+
+Well, this approach tells the Kubernetes API about what you want to create, delete or replace. In a more simplified manner, it means that you can create a whole new object from scratch. Or, it makes some changes to any existing object by defining the requirements.
+
+#### Kubectl apply
+On the other hand, it is quite a declarative management approach. It means that all the changes that you make to a live object will stay intact even if you apply more changes to the same object.
+
+In simple words, apply means making more changes to an already existing object by declaring what exactly you need.
+
+Go ahead and apply the kubesample
 ```bash
-kubectl apply -f kubesample.yaml
+kubectl apply -f ./deployments/kubesample.yaml 
 service/redis created
 deployment.apps/redis-master created
 service/redis-slave created
 deployment.apps/redis-slave created
 service/frontend created
 deployment.apps/frontend created
-
 ```
 
-Take a look at what is running
+Now, let's take a look at what is running
 
 ```bash
 kubectl get all
-NAME                               READY   STATUS              RESTARTS   AGE
-pod/redis-slave-7979cfdfb8-w5hb6   0/1     ContainerCreating   0          11s
-pod/redis-master-85547b7b9-pdt25   0/1     ContainerCreating   0          11s
-pod/frontend-667b6d7d5d-ms974      0/1     ContainerCreating   0          11s
-pod/frontend-667b6d7d5d-swr5s      0/1     ContainerCreating   0          11s
-pod/redis-slave-7979cfdfb8-bmnl7   0/1     ContainerCreating   0          11s
-pod/frontend-667b6d7d5d-hhp8r      0/1     ContainerCreating   0          11s
+NAME                               READY   STATUS    RESTARTS   AGE
+pod/mydep1-6b7cfdd955-b67pq        1/1     Running   0          57m
+pod/mydep1-6b7cfdd955-vqvd6        1/1     Running   0          57m
+pod/mydep1-6b7cfdd955-qt28h        1/1     Running   0          57m
+pod/apache3                        1/1     Running   0          26m
+pod/mysql-pod2                     1/1     Running   0          16m
+pod/redis-slave-7979cfdfb8-qcdbw   1/1     Running   0          38s
+pod/frontend-667b6d7d5d-skb6z      1/1     Running   0          38s
+pod/redis-slave-7979cfdfb8-bp4sr   1/1     Running   0          38s
+pod/frontend-667b6d7d5d-fnbx8      1/1     Running   0          38s
+pod/frontend-667b6d7d5d-mrj2v      1/1     Running   0          38s
+pod/redis-master-85547b7b9-prm5b   1/1     Running   0          38s
 
 NAME                  TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)        AGE
-service/kubernetes    ClusterIP   10.43.0.1      <none>        443/TCP        82d
-service/redis         ClusterIP   10.43.99.96    <none>        6379/TCP       11s
-service/redis-slave   ClusterIP   10.43.54.55    <none>        6379/TCP       11s
-service/frontend      NodePort    10.43.156.91   <none>        80:30049/TCP   11s
+service/kubernetes    ClusterIP   10.43.0.1      <none>        443/TCP        83d
+service/mydep1        ClusterIP   10.43.80.30    <none>        80/TCP         54m
+service/redis         ClusterIP   10.43.26.238   <none>        6379/TCP       38s
+service/redis-slave   ClusterIP   10.43.234.99   <none>        6379/TCP       38s
+service/frontend      NodePort    10.43.255.79   <none>        80:30711/TCP   38s
 
 NAME                           READY   UP-TO-DATE   AVAILABLE   AGE
-deployment.apps/redis-master   0/1     1            0           11s
-deployment.apps/redis-slave    0/2     2            0           11s
-deployment.apps/frontend       0/3     3            0           11s
+deployment.apps/mydep1         3/3     3            3           57m
+deployment.apps/redis-slave    2/2     2            2           38s
+deployment.apps/frontend       3/3     3            3           38s
+deployment.apps/redis-master   1/1     1            1           38s
 
 NAME                                     DESIRED   CURRENT   READY   AGE
-replicaset.apps/redis-master-85547b7b9   1         1         0       11s
-replicaset.apps/redis-slave-7979cfdfb8   2         2         0       11s
-replicaset.apps/frontend-667b6d7d5d      3         3         0       11s
-
+replicaset.apps/mydep1-6b7cfdd955        3         3         3       57m
+replicaset.apps/redis-slave-7979cfdfb8   2         2         2       38s
+replicaset.apps/frontend-667b6d7d5d      3         3         3       38s
+replicaset.apps/redis-master-85547b7b9   1         1         1       38s
 ```
+
+This is getting to be quite a lot of items.  Lets break them down and see where it all came from.
+
+#### PODS
+
+#### SERVICES
+
+#### DEPLOYMENTS
+
+#### REPLICASETS
+
 
 ```bash
 kubectl get pods
