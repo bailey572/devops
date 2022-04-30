@@ -132,6 +132,61 @@ kubectl get nodes
 
 ## Fun with kubectl from the command line
 
+### Describe
+
+kubectl describe node asus
+
+### Explain
+
+kubectl explain service
+
+### Get pods
+kubectl get pods -n kube-system -o wide
+NAME                                      READY   STATUS      RESTARTS        AGE   IP            NODE            NOMINATED NODE   READINESS GATES
+helm-install-traefik-crd--1-sqdld         0/1     Completed   0               83d   10.42.0.3     inspiron-3650   <none>           <none>
+helm-install-traefik--1-4cx8d             0/1     Completed   2               83d   10.42.0.5     inspiron-3650   <none>           <none>
+svclb-traefik-f8z5j                       2/2     Running     70 (19h ago)    83d   10.42.0.251   inspiron-3650   <none>           <none>
+traefik-55fdc6d984-lznj2                  1/1     Running     35 (19h ago)    83d   10.42.0.2     inspiron-3650   <none>           <none>
+coredns-96cc4f57d-hn6ws                   1/1     Running     35 (19h ago)    83d   10.42.0.5     inspiron-3650   <none>           <none>
+local-path-provisioner-84bb864455-6s2cg   1/1     Running     38 (121m ago)   83d   10.42.0.3     inspiron-3650   <none>           <none>
+metrics-server-ff9dbcb6c-nwzcf            1/1     Running     46 (121m ago)   83d   10.42.0.253   inspiron-3650   <none>           <none>
+svclb-traefik-4bvqj                       2/2     Running     20 (24h ago)    83d   10.42.1.12    asus            <none>           <none>
+
+### Get All
+kubectl get all -n kube-system -o wide
+NAME                                          READY   STATUS      RESTARTS        AGE   IP            NODE            NOMINATED NODE   READINESS GATES
+pod/helm-install-traefik-crd--1-sqdld         0/1     Completed   0               83d   10.42.0.3     inspiron-3650   <none>           <none>
+pod/helm-install-traefik--1-4cx8d             0/1     Completed   2               83d   10.42.0.5     inspiron-3650   <none>           <none>
+pod/svclb-traefik-f8z5j                       2/2     Running     70 (19h ago)    83d   10.42.0.251   inspiron-3650   <none>           <none>
+pod/traefik-55fdc6d984-lznj2                  1/1     Running     35 (19h ago)    83d   10.42.0.2     inspiron-3650   <none>           <none>
+pod/coredns-96cc4f57d-hn6ws                   1/1     Running     35 (19h ago)    83d   10.42.0.5     inspiron-3650   <none>           <none>
+pod/local-path-provisioner-84bb864455-6s2cg   1/1     Running     38 (127m ago)   83d   10.42.0.3     inspiron-3650   <none>           <none>
+pod/metrics-server-ff9dbcb6c-nwzcf            1/1     Running     46 (127m ago)   83d   10.42.0.253   inspiron-3650   <none>           <none>
+pod/svclb-traefik-4bvqj                       2/2     Running     20 (24h ago)    83d   10.42.1.12    asus            <none>           <none>
+
+NAME                     TYPE           CLUSTER-IP      EXTERNAL-IP                  PORT(S)                      AGE   SELECTOR
+service/kube-dns         ClusterIP      10.43.0.10      <none>                       53/UDP,53/TCP,9153/TCP       83d   k8s-app=kube-dns
+service/metrics-server   ClusterIP      10.43.144.66    <none>                       443/TCP                      83d   k8s-app=metrics-server
+service/traefik          LoadBalancer   10.43.211.196   192.168.1.229,192.168.1.37   80:30576/TCP,443:30795/TCP   83d   app.kubernetes.io/instance=traefik,app.kubernetes.io/name=traefik
+
+NAME                           DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR   AGE   CONTAINERS               IMAGES                                                SELECTOR
+daemonset.apps/svclb-traefik   2         2         2       2            2           <none>          83d   lb-port-80,lb-port-443   rancher/klipper-lb:v0.3.4,rancher/klipper-lb:v0.3.4   app=svclb-traefik
+
+NAME                                     READY   UP-TO-DATE   AVAILABLE   AGE   CONTAINERS               IMAGES                                   SELECTOR
+deployment.apps/traefik                  1/1     1            1           83d   traefik                  rancher/mirrored-library-traefik:2.5.6   app.kubernetes.io/instance=traefik,app.kubernetes.io/name=traefik
+deployment.apps/coredns                  1/1     1            1           83d   coredns                  rancher/mirrored-coredns-coredns:1.8.6   k8s-app=kube-dns
+deployment.apps/local-path-provisioner   1/1     1            1           83d   local-path-provisioner   rancher/local-path-provisioner:v0.0.21   app=local-path-provisioner
+deployment.apps/metrics-server           1/1     1            1           83d   metrics-server           rancher/mirrored-metrics-server:v0.5.2   k8s-app=metrics-server
+
+NAME                                                DESIRED   CURRENT   READY   AGE   CONTAINERS               IMAGES                                   SELECTOR
+replicaset.apps/traefik-55fdc6d984                  1         1         1       83d   traefik                  rancher/mirrored-library-traefik:2.5.6   app.kubernetes.io/instance=traefik,app.kubernetes.io/name=traefik,pod-template-hash=55fdc6d984
+replicaset.apps/coredns-96cc4f57d                   1         1         1       83d   coredns                  rancher/mirrored-coredns-coredns:1.8.6   k8s-app=kube-dns,pod-template-hash=96cc4f57d
+replicaset.apps/local-path-provisioner-84bb864455   1         1         1       83d   local-path-provisioner   rancher/local-path-provisioner:v0.0.21   app=local-path-provisioner,pod-template-hash=84bb864455
+replicaset.apps/metrics-server-ff9dbcb6c            1         1         1       83d   metrics-server           rancher/mirrored-metrics-server:v0.5.2   k8s-app=metrics-server,pod-template-hash=ff9dbcb6c
+
+NAME                                 COMPLETIONS   DURATION   AGE   CONTAINERS   IMAGES                                      SELECTOR
+job.batch/helm-install-traefik-crd   1/1           67s        83d   helm         rancher/klipper-helm:v0.6.6-build20211022   controller-uid=4f7a2f4c-6451-4b9e-b847-1b851209469e
+job.batch/helm-install-traefik       1/1           81s        83d   helm         rancher/klipper-helm:v0.6.6-build20211022   controller-uid=5cf018e3-b9bb-466d-9c58-9f9211c396a9
 
 ### The create command
 
@@ -297,17 +352,17 @@ Create a file, kubesample.yaml, and populate with the following content
 ```yaml
 vi ./deployments/kubesample.yaml
 
-apiVersion: v1
-kind: Service
-metadata:
-  name: redis
-  labels:
+apiVersion: v1    # target api version (only valid for pods, deployments don't exist in V1)
+kind: Service     # type to create (service, pod, job, deployment, etc.)
+metadata:         # metadata about this service
+  name: redis     # name of the service itself
+  labels:         # label to identify the service in kubernetes (kubectl describe service redis)
     app: hello
     tier: backend
     role: master
-spec:
-  ports:
-  - port: 6379 
+spec:             # configure the actual object through the specification map (memory, storage, network, etc.)
+  ports:          # allowed communication paths
+  - port: 6379    # 
     targetPort: 80
   selector:
     app: redis
@@ -529,7 +584,16 @@ This is getting to be quite a lot of items.  Lets break them down and see where 
 
 #### PODS
 
+Smallest unit in Kubernetes, Pods manage the containers and applications being managed by K8S.  Made up of a kubelet, linux service on each node and kube-proxy which is an actual pod on each node.
+
 #### SERVICES
+
+Services are the networking portion of Kubernetes that allows traffic to flow between nodes and well as external physical and VM machines.  There are four ways of getting traffic moved.
+- LoadBalancer - 
+- ClusterIP - so we can talk internally between nodes and pods.  Only accessed from within the cluster
+- NodePort - Static port on each node's IP and used to expose a service
+- Ingress -
+- ExternalName - Returns a value for the CNAME record that maps a service to a pre-defined external Name field
 
 #### DEPLOYMENTS
 
