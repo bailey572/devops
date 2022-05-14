@@ -107,7 +107,7 @@ Execution of this project is accomplished through a Jenkins Pipeline configurati
 * Name - Capstone Project
 * Do not build concurrent builds
 * GitHub project
-  *  url - 
+  *  url - https://github.com/bailey572/devops/tree/main/05_Capstone/sampleTest/RetailWebApp
 * Preserve stashes for completed builds
   * Number of stashes == 1   
 * Build Triggers - Poll SCM
