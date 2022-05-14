@@ -42,7 +42,7 @@ Develop an automated pipeline for a legacy application to build, test, and deplo
 
 ### Environment
 
-* Jenkins instance properly configured
+* Jenkins instance properly configured in AWS
 * Jenkins baseline
 * Plugins
   * Pipeline Groovy
@@ -56,6 +56,24 @@ Develop an automated pipeline for a legacy application to build, test, and deplo
   * Mono environment
 * Source SCM
   * Existing legacy project
+
+#### Environment Setup
+
+The environment is defined utilizing a Terraform script to create a Virtual Private Cloud (VPC) consisting of 
+* A gateway to allow external access and obtain a public IP address
+* A Build host Host configured with
+  * Docker installation
+  * A Local Docker registry configured 
+  * Required build tool chain
+* A Jenkins instance configured with the plugins
+  * Pipeline Groovy
+  * Pipeline Shared Groovy Libraries
+  * Docker
+  * Git
+  * Credentials
+* Internal subnet
+* AWS key pair exchange
+* An execution host for the deployed container
 
 ### Pipeline
 
@@ -82,3 +100,15 @@ These are optional steps if we want to go that far but would require a second pi
   * Configured run environment
   * Deployed application
   * Port access to application
+
+#### Pipeline Setup
+
+Execution of this project is accomplished through a Jenkins Pipeline configuration leveraging a Groovy based Pipeline script.  The Jenkins job is defined as:
+* Name - Capstone Project
+* Do not build concurrent builds
+* GitHub project
+  *  url - 
+* Preserve stashes for completed builds
+  * Number of stashes == 1   
+* Build Triggers - Poll SCM
+* Pipeline Script - CapstoneBuildTestDockerDeploy
