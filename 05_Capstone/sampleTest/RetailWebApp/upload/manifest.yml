@@ -1,0 +1,10 @@
+---
+applications:
+- name: retailapp
+  memory: 512M
+  instances: 1
+  host: reatilapp
+  path: ./retailone.war
+  services:
+    - "mysql-dev"
+
