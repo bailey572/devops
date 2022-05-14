@@ -8,7 +8,7 @@
 	<properties>
 		<maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        </properties>
+    </properties>
 	<dependencies>
 		<dependency>
 			<groupId>org.apache.tomcat</groupId>
@@ -23,10 +23,10 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-    <groupId>log4j</groupId>
-    <artifactId>log4j</artifactId>
-    <version>1.2.17</version>
-	</dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-1.2-api</artifactId>
+			<version>2.17.2</version>
+		</dependency>
 		<dependency>
 			<groupId>org.seleniumhq.selenium</groupId>
 			<artifactId>selenium-java</artifactId>

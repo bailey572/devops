@@ -9,8 +9,10 @@ import java.util.*;
 import org.apache.log4j.Logger;
 
 public class Util {
+
 	private static Logger logger = Logger.getLogger("retailone");
-	public Connection db()
+	
+    public Connection db()
     {
     	Connection connection = null;
     try {

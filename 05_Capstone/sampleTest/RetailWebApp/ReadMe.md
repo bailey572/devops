@@ -16,7 +16,7 @@ from the root directory containing this ReadMe file.
 
 This will download the required dependencies, compile the source code, and host the web application [retailone](http://localhost:8026/retailone) on your local machine.
 
-This will display the login page in your local browser.  Please note, as this uses jsp, you may need to trust the scripts on the page if you are running an Adblocker or Noscript plugin.
+This will display the login page in your local browser.  Please note, as this uses jsp, you may need to trust the scripts on the page if you are running an Ad blocker or Noscript plugin.
 
 Default login credentials are:
 *  Username - Demo
