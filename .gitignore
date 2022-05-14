@@ -24,3 +24,6 @@ hs_err_pid*
 
 # Ignore ssh key directory
 ***/ansible_keys
+
+# Ignore maven target directories
+***/target
