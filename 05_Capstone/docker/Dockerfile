@@ -7,4 +7,4 @@ LABEL maintainer=bailey572@msn.com
 COPY ./sampleTest/RetailWebApp/target/retailone.war /usr/local/tomcat/webapps
 
 # EXPOSE to map host port 8081 to tomcat port 8080
-EXPOSE 8026:8080
+EXPOSE 8081:8080
