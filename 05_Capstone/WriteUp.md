@@ -52,10 +52,10 @@ Develop an automated pipeline for a legacy application to build, test, and deplo
 * Private Docker repository
 * Execution environment
   * Docker installed
-  * .NET Core SDK
-  * Mono environment
+  * JDK 11+
+  * Maven 5.4+
 * Source SCM
-  * Existing legacy project
+  * Existing legacy project [RetailOne](https://github.com/bailey572/devops/tree/main/05_Capstone/docker/sampleTest/RetailWebApp)
 
 #### Environment Setup
 

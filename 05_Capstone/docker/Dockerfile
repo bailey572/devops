@@ -6,5 +6,5 @@ LABEL maintainer=bailey572@msn.com
 # Populate tomcat default location with WebApp
 COPY ./sampleTest/RetailWebApp/target/ /usr/local/tomcat/webapps
 
-# EXPOSE to map host port 8081 to tomcat port 8080
-EXPOSE 8081:8080
+# EXPOSE tomcat port 8080
+EXPOSE 8080
