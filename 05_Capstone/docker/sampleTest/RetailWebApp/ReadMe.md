@@ -1,6 +1,6 @@
 # Simple Java Web application
 
-This is a sample application that was taken from Venkatasamy's [RetailWbApp](https://github.com/Venkatasamy/RetailWebApp.git) that had a functional front end and existing tests with a mostly operational pom file for maven.
+This is a sample application that was taken from Venkatasamy's [RetailWebApp](https://github.com/Venkatasamy/RetailWebApp.git) that had a functional front end and existing tests with a mostly operational pom file for maven.
 
 It was trimmed down to just the basics in support our needs for build, test, and install.
 
@@ -8,7 +8,7 @@ To run this locally for test and evaluation you must already have the installed 
 *  Maven: version 5.4+
 *  JDK: version 11+
   
-Once the dependencies, you can leverage the Tomcat server by issuing
+Once the dependencies are installed, you can leverage the Tomcat server by issuing
 ```bash
 mvn tomcat7:run
 ```

@@ -101,7 +101,13 @@ These are optional steps if we want to go that far but would require a second pi
   * Deployed application
   * Port access to application
 
-#### Pipeline Setup
+## Project Setup
+
+As this is a proof of concept meant to flush out the environment and pipeline definitions, the selection of a project was of low importance.  For ease of use and implementation, a pre-existing Retail Web Application with existing front end and test cases was selected.
+For additional information on this project, please refer to the 
+
+## Docker Setup
+## Pipeline Setup
 
 Execution of this project is accomplished through a Jenkins Pipeline configuration leveraging a Groovy based Pipeline script.  The Jenkins job is defined as:
 * Name - Capstone Project
@@ -112,3 +118,5 @@ Execution of this project is accomplished through a Jenkins Pipeline configurati
   * Number of stashes == 1   
 * Build Triggers - Poll SCM
 * Pipeline Script - CapstoneBuildTestDockerDeploy
+
+## Environment Setup
