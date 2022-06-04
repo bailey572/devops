@@ -104,9 +104,14 @@ These are optional steps if we want to go that far but would require a second pi
 ## Project Setup
 
 As this is a proof of concept meant to flush out the environment and pipeline definitions, the selection of a project was of low importance.  For ease of use and implementation, a pre-existing Retail Web Application with existing front end and test cases was selected.
-For additional information on this project, please refer to the 
+The build, test execution, and packaging are controlled through single [pom](https://github.com/bailey572/devops/blob/main/05_Capstone/docker/sampleTest/RetailWebApp/pom.xml) file. 
+For additional information on this project, please refer to the [Readme](https://github.com/bailey572/devops/tree/main/05_Capstone/docker/sampleTest/RetailWebApp#readme) to manually build and execute the application locally.
 
 ## Docker Setup
+
+In order to easily manage and deploy the webapp, and to conform to the project requirements, a dockerfile was created to host the war file inside a container running a webserver instance.
+Again, as this a proof of concept, a simple solution was leveraged with an existing Tomcat docker image is used that simply copies in the built war file and exposes the ports.  The definition of this image is contained in the [DockerFile](https://github.com/bailey572/devops/blob/main/05_Capstone/docker/Dockerfile)
+For additional information on this project, please refer to the [Readme](https://github.com/bailey572/devops/blob/main/05_Capstone/docker/readme.md) to manually build the image and execute a local container.
 ## Pipeline Setup
 
 Execution of this project is accomplished through a Jenkins Pipeline configuration leveraging a Groovy based Pipeline script.  The Jenkins job is defined as:
@@ -118,5 +123,20 @@ Execution of this project is accomplished through a Jenkins Pipeline configurati
   * Number of stashes == 1   
 * Build Triggers - Poll SCM
 * Pipeline Script - CapstoneBuildTestDockerDeploy
+
+For a full definition, please refer to the [CapstoneProject](https://github.com/bailey572/devops/blob/main/05_Capstone/JenkinsFile/config.xml) definition itself which contains stages:
+* Get the code
+* Build the code
+* Run the tests
+* Package the Webapp
+* Build the image
+* Verify local registry
+* Push to local registry
+* Deploy container
+
+Alternatively, this project can also be executed from the [CapstoneProject2](https://github.com/bailey572/devops/blob/main/05_Capstone/JenkinsFile/config2.xml) definition, which performs that same tasks but leverages a JenkinsFile instead on embedding the pipeline directly.
+
+For additional information on this Jenkins project, please refer to the[Readme](https://github.com/bailey572/devops/blob/main/05_Capstone/JenkinsFile/readme.md) for instructions on manually deploying the configuration to a Jenkins instance.
+
 
 ## Environment Setup
