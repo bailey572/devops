@@ -136,7 +136,7 @@ For a full definition, please refer to the [CapstoneProject](https://github.com/
 
 Alternatively, this project can also be executed from the [CapstoneProject2](https://github.com/bailey572/devops/blob/main/05_Capstone/JenkinsFile/config2.xml) definition, which performs that same tasks but leverages a JenkinsFile instead on embedding the pipeline directly.
 
-For additional information on this Jenkins project, please refer to the[Readme](https://github.com/bailey572/devops/blob/main/05_Capstone/JenkinsFile/readme.md) for instructions on manually deploying the configuration to a Jenkins instance.
+For additional information on this Jenkins project, please refer to the [Readme](https://github.com/bailey572/devops/blob/main/05_Capstone/JenkinsFile/readme.md) for instructions on manually deploying the configuration to a Jenkins instance.
 
 
 ## Environment Setup
