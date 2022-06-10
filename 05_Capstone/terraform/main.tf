@@ -107,7 +107,7 @@ resource "aws_security_group" "ec2_allow_rule" {
   
   vpc_id = "${aws_vpc.test-env.id}"
   tags = {
-    Name = "allow ssh,http,https, jenkins"
+    Name = "allow ssh,http,https"
   }
 }
 
