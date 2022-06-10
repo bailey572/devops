@@ -143,7 +143,7 @@ output "IP" {
 }
 
 // configure provisioners that are not directly associated with a single existing resource i.e. wordpress
-resource "null_resource" "Install and Configure Jenkins" {
+resource "null_resource" "Jenkins_Installation_Waiting" {
   connection {
     type        = "ssh"
     user        = "ec2-user"
