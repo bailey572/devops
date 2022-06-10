@@ -122,13 +122,16 @@ The Terraform configuration is captured in the [main.tf](https://github.com/bail
 * null_resource.Jenkins_Installation_Waiting - Installation handler for the Jenkins service
 * tls_private_key.example - Enforce AWS encrypted communication using Transport Layer Security
 
-From the ./05_Capstone/terraform directory, issue the ```terraform plan``` and verify the successful processing of the above resources.
+From the ./05_Capstone/terraform directory, issue the command ```terraform plan``` and verify the successful processing of the above resources.
 
 ### Validate
 
 The command ```terraform validate```  verifies only the local configuration and does not access any remote services such as remote state, provider APIs, etc.  Validate runs checks that verify whether a configuration is syntactically valid and internally consistent, regardless of any provided variables or existing state and is primarily useful for general verification of reusable modules, including correctness of attribute names and value types.
 
-From the ./05_Capstone/terraform directory, issue the ```terraform plan``` and verify the configuration is valid.
+From the ./05_Capstone/terraform directory, issue the command ```terraform plan``` and verify the configuration is valid.
 
 ### Apply
 
+The final step, and actual deployment is invoked through the ```terraform apply``` command.  This creates or updates the infrastructure according to the Terraform configuration files in the current directory. 
+
+From the ./05_Capstone/terraform directory, issue the ```terraform apply``` command.  This will generate output similar to ```terraform plan``` but contains the actual values that will be used on the AWS instance. To perform the actions, type **yes** when prompted to deploy to AWS and create the infrastructure.

@@ -83,10 +83,10 @@ resource "aws_security_group" "ec2_allow_rule" {
   }
 
   ingress {
-    description = "HTTP"
+    description = "JENKINS"
     from_port   = 8080
     to_port     = 8080
-    protocol    = "jenkins"
+    protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
   
