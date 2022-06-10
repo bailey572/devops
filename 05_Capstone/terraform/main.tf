@@ -126,7 +126,7 @@ resource "aws_instance" "JenkinsServer" {
 // Sends your public key to the instance. The key pair is used to control login access to EC2 instances.
 resource "aws_key_pair" "mykey-pair" {
   key_name   = "mykey-pair"
-  public_key = file("~/.ssh/id_rsa.pub")
+  public_key = file("./mykey-pair.pub")
 }
 
 // creating Elastic IP for EC2
@@ -147,7 +147,7 @@ resource "null_resource" "Jenkins_Installation_Waiting" {
   connection {
     type        = "ssh"
     user        = "ec2-user"
-    private_key = file("~/.ssh/id_rsa")
+    private_key = file("./mykey-pair")
     host        = aws_eip.eip.public_ip
   }
 

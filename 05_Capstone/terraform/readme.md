@@ -100,9 +100,35 @@ ssh-keygen -f mykey-pair
 
 Don't panic, the .gitignore file will keep you from committing these keys but it is best to store them elsewhere.  Please note, if you do so now, you will need to update the main_script.tf file.
 
-## Define the terraform configuration
+## Defining the Terraform configuration
 
-### main.tf
+The Terraform configuration is captured in the [main.tf](https://github.com/bailey572/devops/blob/main/05_Capstone/terraform/main.tf) file and leverages the [installJenkins.sh](https://github.com/bailey572/devops/blob/main/05_Capstone/terraform/installJenkins.sh) for the configuration of the Jenkins instance.  Since it is already defined, we simply need to verify its configuration and deploy using Terraform supplied tools.
 
-### main_script
+### Plan
+
+ The command ```terraform plan``` generates a **speculative** execution plan, showing what actions Terraform would take to apply the current configuration. This command does not actually perform the planned actions but acts like a compiler and initialization step.  The main.tf file is processed sequentially and stops processing on any error found requiring an update and rerun for each error until a successful run is accomplished.
+
+ For this configuration, the most likely error a user would run into may the generated ssh key file generated during setup and a successful run will list the actions that are **planned** for execution i.e. the creation of
+
+* aws_eip.eip - Elastic Ineternet Protocol for EC2
+* aws_instance.JenkinsServer - Machine instance to host Jenkins
+* aws_internet_gateway.test-env-gw - Gateway for managing traffic
+* aws_key_pair.mykey-pair - Password less ssh keys
+* aws_route_table.test-public-crt - AWS Common Runtime Libraries accessor
+* aws_route_table_association.test-crta-public-subnet-1 - Associate route tabLe to public subnet
+* aws_security_group.ec2_allow_rule - Firewall rules for public access
+* aws_subnet.test-subnet-public-1 - Public subnet network definition
+* aws_vpc.test-env - Definition of the Virtual Private Cloud (VPC)
+* null_resource.Jenkins_Installation_Waiting - Installation handler for the Jenkins service
+* tls_private_key.example - Enforce AWS encrypted communication using Transport Layer Security
+
+From the ./05_Capstone/terraform directory, issue the ```terraform plan``` and verify the successful processing of the above resources.
+
+### Validate
+
+The command ```terraform validate```  verifies only the local configuration and does not access any remote services such as remote state, provider APIs, etc.  Validate runs checks that verify whether a configuration is syntactically valid and internally consistent, regardless of any provided variables or existing state and is primarily useful for general verification of reusable modules, including correctness of attribute names and value types.
+
+From the ./05_Capstone/terraform directory, issue the ```terraform plan``` and verify the configuration is valid.
+
+### Apply
 
