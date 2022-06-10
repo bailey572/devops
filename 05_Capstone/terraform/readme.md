@@ -61,8 +61,9 @@ Review = Create user
 ```
 
 At successful completion, remember to save the authentication data before leaving.  You will need it for the CLI configuration.
-Access Key ID [****************UR3P]: 
-Secret Access Key [****************PDd+]: 
+
+* Access Key ID [****************UR3P]:
+* Secret Access Key [****************PDd+]:
 
 ## Initialize Environment
 
@@ -135,3 +136,12 @@ From the ./05_Capstone/terraform directory, issue the command ```terraform plan`
 The final step, and actual deployment is invoked through the ```terraform apply``` command.  This creates or updates the infrastructure according to the Terraform configuration files in the current directory. 
 
 From the ./05_Capstone/terraform directory, issue the ```terraform apply``` command.  This will generate output similar to ```terraform plan``` but contains the actual values that will be used on the AWS instance. To perform the actions, type **yes** when prompted to deploy to AWS and create the infrastructure.
+
+Upon completion, you will be met with an IP address that you can use to access the new instance.
+
+Please note, executing ```terraform apply``` additional times will results in the teardown and build up of the infrastructure.  If you have used ssh to access the system you will need to flush the known host file to keep from getting a security warning.
+
+```bash
+ssh-keygen -f ~/.ssh/known_hosts -R "ec2-44-206-204-6.compute-1.amazonaws.com"
+ssh -i ~/.ssh/mykey-pair ec2-user@ec2-44-206-204-6.compute-1.amazonaws.com
+```

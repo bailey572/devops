@@ -152,3 +152,7 @@ Detailed explanation of this configuration, setup, and usage are contained withi
 * Defining the Terraform configuration
 * Terraform components
 * Shutdown and Cleanup
+
+## Executing Build
+
+While the configuration will execute based on SCM polling for changes, for initial testing it is recommended that manual testing should occur.
