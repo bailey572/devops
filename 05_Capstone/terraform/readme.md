@@ -1,4 +1,6 @@
-# Environment Setup using Terraform
+# Jenkins Terraform Environment
+
+## Environment Setup using Terraform
 
 For successful execution, the operators environment must be properly configured Terraform and AWS dependencies and the project area must be configured.  The following steps assume the operator is working from an x86-64 based system running Ubuntu version 18 or above as either a local client or a VM.
 
@@ -15,6 +17,8 @@ sudo apt-get update && sudo apt-get install terraform
 terraform -install-autocomplete
 ```
 
+```terraform --version``` can be used as a quick test to verify installation.
+
 Please note: Terraform autocomplete is not required but a useful utility.
 
 [Instruction source:](https://learn.hashicorp.com/tutorials/terraform/install-cli?in=terraform/aws-get-started)
@@ -30,6 +34,8 @@ unzip awscliv2.zip
 sudo ./aws/install
 ```
 
+```aws --version``` can be used as a quick test to verify installation.
+
 [Instruction source:](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)
 
 ### Define a new user for AWS account
@@ -38,43 +44,48 @@ In order to interact with the AWS Application Programming Interface (API) throug
 
 The values provided by the class lab do not work and to be successful, you will need to create a new user for credential based support.  
 
-Use the Practice Labs provided interface to access the AWS Web Console.  Open the Auth URL in a new tab to arrive a the AWS Management console.  In my case this was URL <https://us-east-1.console.aws.amazon.com/console/home?region=us-east-1>#.
-Select All services to expand the list of options and select the AWS Identity and Access Manager (IAM)
+Use the Practice Labs provided interface to access the AWS Web Console.  This will generally require logging into SimpliLearn, going to the G-DO---Configuration-Management-with-Ansible-and-Terraform/practice-labs and starting a lab instance.  Open the **Auth URL** in a new tab to arrive a the AWS Management console.
+
+In my case this was URL <https://us-east-1.console.aws.amazon.com/console/home?region=us-east-1>#.
+
+Select **All services** to expand the list of options and select the AWS Identity and Access Manager **(IAM)**
 Select Users link (left side) and then the Add Users link (top right corner)
 Use the following values to walk through the wizard.
 
 ```bash
 User Name = administrator
 AWS credential type = Access key - Programmatic access
-Group = Administrator
+Group = Administrator - SysAdmin
 Add tags = next "no value"
 Review = Create user
 ```
 
 At successful completion, remember to save the authentication data before leaving.  You will need it for the CLI configuration.
-Access Key ID [****************UR3P]:
-Secret Access Key [****************PDd+]:
+Access Key ID [****************UR3P]: 
+Secret Access Key [****************PDd+]: 
 
 ## Initialize Environment
 
 ### Terraform work area
 
-From the console, change to the TerraFormLab working directory and initialize the environment with the following commands.
+From the console, change to the ./05_Capstone/terraform directory and initialize the environment with the following commands.
 
 ```bash
 terraform init
 ```
 
+This command processes the main.tf file currently in the directory, does an initial evaluation, creates local resource .terraform.lock.hcl to manage the configuration, and pulls down resource (plugins) defined in the main.tf file.  Since we are targeting AWS, one of the plugins downloaded will be ./hashicorp/aws.
+
 ### AWS authentication
 
-This initializes the directory for Terraform tracking.  Once complete, configure AWS CLI access using the authentication data for the new user created above.  From the same directory issue:
+Before we can actively communicate with the AWS, we need to provide authentication data for the new user created above through the AWS web client.  From the same directory issue:
 
 ```bash
 aws configure
-AWS Access Key ID [****************UR3P]: 
-AWS Secret Access Key [****************PDd+]: 
+AWS Access Key ID [****************UR3P]: YOUR_KEY_ID_HERE
+AWS Secret Access Key [****************PDd+]: YOUR_SECRET_KEY_HERE
 Default region name [us-east-1]: us-east-1
-Default output format [None]: 
+Default output format [json]: 
 ```
 
 Please note, depending on how long you go between steps and your AWS subscription, you may need to get new credentials.
