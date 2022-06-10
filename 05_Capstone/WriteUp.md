@@ -30,7 +30,7 @@ The following things to be kept in check:
 2. The submission of your Github repository link is mandatory. In order to track your tasks, you need to share the link of the repository.
 3. Document the step-by-step process starting from creating test cases, the executing it, and recording the results.
 4. You need to submit the final specification document, which includes:
-   
+
 * Project and tester details
 * Concepts used in the project
 * Links to the GitHub repository to verify the project completion
@@ -59,11 +59,12 @@ Develop an automated pipeline for a legacy application to build, test, and deplo
 
 #### Environment Setup
 
-The environment is defined utilizing a Terraform script to create a Virtual Private Cloud (VPC) consisting of 
+The environment is defined utilizing a Terraform script to create a Virtual Private Cloud (VPC) consisting of
+
 * A gateway to allow external access and obtain a public IP address
 * A Build host Host configured with
   * Docker installation
-  * A Local Docker registry configured 
+  * A Local Docker registry configured
   * Required build tool chain
 * A Jenkins instance configured with the plugins
   * Pipeline Groovy
@@ -104,7 +105,7 @@ These are optional steps if we want to go that far but would require a second pi
 ## Project Setup
 
 As this is a proof of concept meant to flush out the environment and pipeline definitions, the selection of a project was of low importance.  For ease of use and implementation, a pre-existing Retail Web Application with existing front end and test cases was selected.
-The build, test execution, and packaging are controlled through single [pom](https://github.com/bailey572/devops/blob/main/05_Capstone/docker/sampleTest/RetailWebApp/pom.xml) file. 
+The build, test execution, and packaging are controlled through single [pom](https://github.com/bailey572/devops/blob/main/05_Capstone/docker/sampleTest/RetailWebApp/pom.xml) file.
 For additional information on this project, please refer to the [Readme](https://github.com/bailey572/devops/tree/main/05_Capstone/docker/sampleTest/RetailWebApp#readme) to manually build and execute the application locally.
 
 ## Docker Setup
@@ -112,19 +113,22 @@ For additional information on this project, please refer to the [Readme](https:/
 In order to easily manage and deploy the webapp, and to conform to the project requirements, a dockerfile was created to host the war file inside a container running a webserver instance.
 Again, as this a proof of concept, a simple solution was leveraged with an existing Tomcat docker image is used that simply copies in the built war file and exposes the ports.  The definition of this image is contained in the [DockerFile](https://github.com/bailey572/devops/blob/main/05_Capstone/docker/Dockerfile)
 For additional information on this project, please refer to the [Readme](https://github.com/bailey572/devops/blob/main/05_Capstone/docker/readme.md) to manually build the image and execute a local container.
+
 ## Pipeline Setup
 
 Execution of this project is accomplished through a Jenkins Pipeline configuration leveraging a Groovy based Pipeline script.  The Jenkins job is defined as:
+
 * Name - Capstone Project
 * Do not build concurrent builds
 * GitHub project
-  *  url - https://github.com/bailey572/devops/tree/main/05_Capstone/sampleTest/RetailWebApp
+  * url - [RetailWebApp](https://github.com/bailey572/devops/tree/main/05_Capstone/sampleTest/RetailWebApp)
 * Preserve stashes for completed builds
-  * Number of stashes == 1   
+  * Number of stashes == 1
 * Build Triggers - Poll SCM
 * Pipeline Script - CapstoneBuildTestDockerDeploy
 
 For a full definition, please refer to the [CapstoneProject](https://github.com/bailey572/devops/blob/main/05_Capstone/JenkinsFile/config.xml) definition itself which contains stages:
+
 * Get the code
 * Build the code
 * Run the tests
@@ -138,5 +142,13 @@ Alternatively, this project can also be executed from the [CapstoneProject2](htt
 
 For additional information on this Jenkins project, please refer to the [Readme](https://github.com/bailey572/devops/blob/main/05_Capstone/JenkinsFile/readme.md) for instructions on manually deploying the configuration to a Jenkins instance.
 
+## Infrastructure as Code Environment Setup
 
-## Environment Setup
+Definition of this project is accomplished through Infrastructure as Code (IaC), leveraging a Terraform configuration targeting Amazon Web Services (AWS).  The Terraform configuration deploys an infrastructure consisting of an AWS hosted platform defined within through the [main](https://github.com/bailey572/devops/blob/main/05_Capstone/terraform/main.tf) file.  This file leverages [installJenkins.sh](https://github.com/bailey572/devops/blob/main/05_Capstone/terraform/installJenkins.sh) for the configuration of the Jenkins instance to include the installation of the pipeline defined in [CapstoneBuildTestDockerDeploy](https://github.com/bailey572/devops/blob/main/05_Capstone/JenkinsFile/config.xml).
+
+Detailed explanation of this configuration, setup, and usage are contained within the Terraform [ReadMe](https://github.com/bailey572/devops/blob/main/05_Capstone/terraform/readme.md) but consists of the following basic steps:
+
+* Setting up developer Terraform environment
+* Defining the Terraform configuration
+* Terraform components
+* Shutdown and Cleanup
