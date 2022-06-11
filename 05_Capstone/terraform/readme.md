@@ -133,7 +133,7 @@ From the ./05_Capstone/terraform directory, issue the command ```terraform plan`
 
 ### Apply
 
-The final step, and actual deployment is invoked through the ```terraform apply``` command.  This creates or updates the infrastructure according to the Terraform configuration files in the current directory. 
+The final step, and actual deployment is invoked through the ```terraform apply``` command.  This creates or updates the infrastructure according to the Terraform configuration files in the current directory.
 
 From the ./05_Capstone/terraform directory, issue the ```terraform apply``` command.  This will generate output similar to ```terraform plan``` but contains the actual values that will be used on the AWS instance. To perform the actions, type **yes** when prompted to deploy to AWS and create the infrastructure.
 

@@ -31,10 +31,10 @@ The following things to be kept in check:
 3. Document the step-by-step process starting from creating test cases, the executing it, and recording the results.
 4. You need to submit the final specification document, which includes:
 
-* Project and tester details
-* Concepts used in the project
-* Links to the GitHub repository to verify the project completion
-* Your conclusion on enhancing the application and defining the USPs (Unique Selling Points)
+   * Project and tester details
+   * Concepts used in the project
+   * Links to the GitHub repository to verify the project completion
+   * Your conclusion on enhancing the application and defining the USPs (Unique Selling Points)
 
 ## Project Goal
 
@@ -180,7 +180,17 @@ You are also able to define a user at this  point or skip.  An additional user i
 
 While the configuration will execute based on SCM polling for changes, for initial testing it is recommended that manual testing should occur.
 
-Once you have made your way to the Jenkins Dashboard, select the **Capstone5** project name.  From there, select the Build now link.
+Once you have made your way to the Jenkins Dashboard, select the **Capstone5** project name.
+
+Because I failed to figure out how to dynamically assign an IP or reach out to the WarHost instance, you will need to manually update the Jenkins Pipeline prior to running it to enable public access to the container.  From the **Capstone5** project, select Configure, scroll down to the Pipeline syntax, and then replace line 64's localhost text with the current machines internal IP address.
+
+```bash
+Example Line 64 Edit:
+sh "docker run -d -p localhost:80:8080 $registry:$BUILD_NUMBER "
+sh "docker run -d -p 10.0.61.80:80:8080 $registry:$BUILD_NUMBER "
+```
+
+Select save and then select the Build now link.
 
 This will start the pipeline manually and run the steps:
 
@@ -206,3 +216,15 @@ Example: http://35.171.62.123/retailone/
 Please note, this is running on port 80 but as that is the default for http, it is not necessary to specify the port.
 
 For further information on running the web application, please refer to the applications [ReadMe](https://github.com/bailey572/devops/blob/main/05_Capstone/docker/sampleTest/RetailWebApp/ReadMe.md) file.
+
+## Conclusion and Thoughts
+
+Need to figure out how to push container to another node 10.0.61.80:80->8080
+
+While this project meets the requirements of the capstone project outline, captured above, I hope that I misunderstood the Jenkins requirement deployment on an AWS.  My first thought was that we were to create an EC2 instance, configure Jenkins, and then execute a pipeline but since any instance I created disappeared after 4-8 hours, this was not a tenable solution.  Instead, I created a Terraform script to create the Jenkins instance and used remote-exec to accomplish the configurations since this account does not appear to allow me to store an image.
+
+Another thought, and if I was doing this for real, I would change a few items
+
+* Store the images in a static repository
+* Deployed the container into a Kubernetes or similar cluster
+* Published the Pipeline results to a status board
