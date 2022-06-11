@@ -198,3 +198,6 @@ This will start the pipeline manually and run the steps:
 * Verify local registry
 * Push to local registry
 * Deploy container from docker image
+
+## Verify the Application
+

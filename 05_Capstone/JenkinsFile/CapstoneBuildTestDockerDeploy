@@ -43,7 +43,7 @@ pipeline {
             steps {
                 echo 'Verfiy local registry running'                 
                 script {                    
-                    docker.withRegistry( '', registryCredential ) {
+                    docker.withRegistry( "http://localhost:5000", '' ) {
                     dockerImage.push()
                     }
                 }
@@ -53,7 +53,7 @@ pipeline {
             steps {
                 echo 'Pushing to local registry' 
                 script {
-                    docker.withRegistry( '', registryCredential ) {
+                    docker.withRegistry( "http://localhost:5000", '' ) {
                     dockerImage.push()
                     }
                 }

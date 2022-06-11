@@ -18,6 +18,9 @@ sudo systemctl status jenkins
 # Add the build tools
 sudo yum -y install git
 sudo yum -y install docker
+sudo groupadd docker
+sudo usermod -aG docker $USER
+sudo usermod -aG docker jenkins
 sudo yum -y install maven
 
 # Turn Services on
@@ -25,6 +28,9 @@ sudo systemctl start jenkins
 sudo systemctl status jenkins
 sudo systemctl start docker
 sudo systemctl status docker
+
+# Create local docker repositoy
+docker run -d -p 5000:5000 --restart=always --name registry registry:2
 
 echo Jenkins Instance Ready
 echo `sudo cat /var/lib/jenkins/secrets/initialAdminPassword`
