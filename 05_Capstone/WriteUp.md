@@ -94,14 +94,6 @@ This will be accomplished leveraging a Jenkins instance that will:
 * Capture Unit test results
 * Remove build/test container
 
-These are optional steps if we want to go that far but would require a second pipeline that we could string together
-
-* Remove current application container instance
-* Dynamically create new application container
-  * Configured run environment
-  * Deployed application
-  * Port access to application
-
 ## Project Setup
 
 As this is a proof of concept meant to flush out the environment and pipeline definitions, the selection of a project was of low importance.  For ease of use and implementation, a pre-existing Retail Web Application with existing front end and test cases was selected.
@@ -166,7 +158,9 @@ Once you have navigated to the EC2 instances, find the running **JenkinsServer**
 * EC2 Instance connect - provides a web based console that will be opened in a new tab
 * SSH client - will display the credentials needed to access through a local terminal
 
-Through either method, you will need to acquire the autogenerate key to access Jenkins by issuing ```sudo cat /var/lib/jenkins/secrets/initialAdminPassword```.  This will display the key you will need to paste into the GUI instance on first run.
+Through either method, you will need to acquire the autogenerate key to access Jenkins by issuing ```sudo cat /var/lib/jenkins/secrets/initialAdminPassword```.
+
+This will display the key you will need to paste into the GUI instance on first run.
 
 ### Jenkins Graphical User Interface
 
@@ -199,5 +193,16 @@ This will start the pipeline manually and run the steps:
 * Push to local registry
 * Deploy container from docker image
 
+For detailed information about this pipeline configuration, please refer to the [Pipeline](https://github.com/bailey572/devops/blob/main/05_Capstone/JenkinsFile/config.xml) and [ReadMe](https://github.com/bailey572/devops/blob/main/05_Capstone/JenkinsFile/readme.md).
+
 ## Verify the Application
 
+Now that we have a functioning pipeline, the container from our built image should be available through the web interface.  To verify its existence, open a web page using the IP address with the web application name appended.
+
+```bash
+Example: http://35.171.62.123/retailone/
+```
+
+Please note, this is running on port 80 but as that is the default for http, it is not necessary to specify the port.
+
+For further information on running the web application, please refer to the applications [ReadMe](https://github.com/bailey572/devops/blob/main/05_Capstone/docker/sampleTest/RetailWebApp/ReadMe.md) file.

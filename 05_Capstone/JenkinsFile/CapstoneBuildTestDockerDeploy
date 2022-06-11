@@ -61,7 +61,7 @@ pipeline {
         }
         stage('Deploy container from docker image') {
             steps{ 
-                sh "docker run -d -p 80 $registry:$BUILD_NUMBER "
+                sh "docker run -d -p 8080 $registry:$BUILD_NUMBER "
             }
         }
         stage('Remove Unused docker image') {

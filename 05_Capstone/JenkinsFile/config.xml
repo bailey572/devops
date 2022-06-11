@@ -84,7 +84,7 @@
         }
         stage(&apos;Deploy container from docker image&apos;) {
             steps{ 
-                sh &quot;docker run -d -p 80 $registry:$BUILD_NUMBER &quot;
+                sh &quot;docker run -d -p 8080 $registry:$BUILD_NUMBER &quot;
             }
         }
  
