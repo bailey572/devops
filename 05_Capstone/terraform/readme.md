@@ -137,11 +137,19 @@ The final step, and actual deployment is invoked through the ```terraform apply`
 
 From the ./05_Capstone/terraform directory, issue the ```terraform apply``` command.  This will generate output similar to ```terraform plan``` but contains the actual values that will be used on the AWS instance. To perform the actions, type **yes** when prompted to deploy to AWS and create the infrastructure.
 
-Upon completion, you will be met with an IP address that you can use to access the new instance.
+Upon completion, the IP addresses of the new instances are output.  Use the Jenkins_IP for the next step.
 
-Please note, executing ```terraform apply``` additional times will results in the teardown and build up of the infrastructure.  If you have used ssh to access the system you will need to flush the known host file to keep from getting a security warning.
+#### Apply Notes
+
+Executing ```terraform apply``` additional times will results in the teardown and build up of the infrastructure but will not always invoke the remote-exec provisioners use to install our services.  
+
+For a simple ```terraform apply``` it will create new machines using the same IP addresses, but if you have used ssh to access the system you will need to flush the known host file to keep from getting a security warning.
 
 ```bash
 ssh-keygen -f ~/.ssh/known_hosts -R "ec2-44-206-204-6.compute-1.amazonaws.com"
 ssh -i ~/.ssh/mykey-pair ec2-user@ec2-44-206-204-6.compute-1.amazonaws.com
 ```
+
+For a full deployment, to include forced execution of the remote-exec provisioners, issue  ```terraform destroy``` and then  ```terraform apply```.  This will ensure a complete teardown and build.
+
+That's it.  The Terraform environment is all setup.

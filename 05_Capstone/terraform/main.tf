@@ -113,13 +113,24 @@ resource "aws_security_group" "ec2_allow_rule" {
 
 // Create Amazon Elastic Compute Cloud (Amazon EC2)
 resource "aws_instance" "JenkinsServer" {
-  ami             = "ami-08e4e35cccc6189f4"
+  ami             = "ami-0022f774911c1d690"// "ami-08e4e35cccc6189f4"
   instance_type   = "t3.micro"
   subnet_id       = aws_subnet.test-subnet-public-1.id
   security_groups = ["${aws_security_group.ec2_allow_rule.id}"]
   key_name        = aws_key_pair.mykey-pair.id
   tags = {
     Name = "JenkinsServer"
+  }
+}
+
+resource "aws_instance" "WarHost" {
+  ami             = "ami-0022f774911c1d690"// "ami-08e4e35cccc6189f4"
+  instance_type   = "t3.micro"
+  subnet_id       = aws_subnet.test-subnet-public-1.id
+  security_groups = ["${aws_security_group.ec2_allow_rule.id}"]
+  key_name        = aws_key_pair.mykey-pair.id
+  tags = {
+    Name = "WarHost"
   }
 }
 
@@ -130,32 +141,35 @@ resource "aws_key_pair" "mykey-pair" {
 }
 
 // creating Elastic IP for EC2
-resource "aws_eip" "eip" {
+resource "aws_eip" "Jenkinseip" {
   instance = aws_instance.JenkinsServer.id
-
+}
+resource "aws_eip" "Warip" {
+  instance = aws_instance.WarHost.id
 }
 
-// output keyword extracts the value of an output variable from the state file.
-
-// Get the IP address
-output "IP" {
-  value = aws_eip.eip.public_ip
+// Output handy messages to the builder
+output "Jenkins_IP" {
+  value = aws_eip.Jenkinseip.public_ip
+}
+output "WAR_IP" {
+  value = aws_eip.Warip.public_ip
 }
 
 // configure provisioners that are not directly associated with a single existing resource i.e. wordpress
+// This resource will install the Jenkins host dependencies 
 resource "null_resource" "Jenkins_Installation_Waiting" {
   connection {
     type        = "ssh"
     user        = "ec2-user"
     private_key = file("./mykey-pair")
-    host        = aws_eip.eip.public_ip
+    host        = aws_eip.Jenkinseip.public_ip
   }
 
- 
   //copy the installation script
   provisioner "file" {
     source = "installJenkins.sh"
-	destination = "/tmp/installJenkins.sh"
+  	destination = "/tmp/installJenkins.sh"
   }
  
   //run the installer
@@ -163,6 +177,43 @@ resource "null_resource" "Jenkins_Installation_Waiting" {
     inline = [
       "chmod +x /tmp/installJenkins.sh",
 	  "sudo /tmp/installJenkins.sh"
-	]
+	  ]
+  }
+
+   //copy the installation script
+  provisioner "file" {
+    source = "installPlugins.sh"
+	  destination = "/tmp/installPlugins.sh"
+  }
+ 
+  //run the installer
+  provisioner "remote-exec" {
+    inline = [
+      "chmod +x /tmp/installPlugins.sh",
+	    "sudo /tmp/installPlugins.sh"
+	  ]
+  }
+}
+// This resource will install the WAR host dependencies 
+resource "null_resource" "WAR_Installation_Waiting" {
+  connection {
+    type        = "ssh"
+    user        = "ec2-user"
+    private_key = file("./mykey-pair")
+    host        = aws_eip.Warip.public_ip
+  }
+
+  //copy the installation script
+  provisioner "file" {
+    source = "installWar.sh"
+	  destination = "/tmp/installWar.sh"
+  }
+ 
+  //run the installer
+  provisioner "remote-exec" {
+    inline = [
+      "chmod +x /tmp/installWar.sh",
+	    "sudo /tmp/installWar.sh"
+	  ]
   }
 }

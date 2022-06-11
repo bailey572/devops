@@ -153,6 +153,48 @@ Detailed explanation of this configuration, setup, and usage are contained withi
 * Terraform components
 * Shutdown and Cleanup
 
-## Executing Build
+## Finalize the Jenkins Instance
+
+Even though the Jenkins instance is created and dependencies are installed, I have not found a way around the default Jenkins screen and you will need to log onto the web interface to do so.  Since we will already be in Jenkins, this in an opportune time to verify the pipeline project functionality.  To do so, you will need to access the Jenkins instance through both the web interface and the command line.
+
+### Jenkins Command Line
+
+The command line can be accessed either through the aws console or through your local system.  While you could just use the IP provided at the end of **apply** job, the easiest way is through the web interface for your credentials.  Navigate to the AWS, EC2, Instances page, this [link](https://us-east-1.console.aws.amazon.com/ec2) may work for you.  If not, start at the Simplilearn Practice Lab page and follow the instructions for creating a new user in the Terraform [ReadMe](https://github.com/bailey572/devops/blob/main/05_Capstone/terraform/readme.md) file.
+
+Once you have navigated to the EC2 instances, find the running **JenkinsServer** instance, select its name, and click the enabled **Connect** widget.  This will display a page that will allow you to select one of four choices.
+
+* EC2 Instance connect - provides a web based console that will be opened in a new tab
+* SSH client - will display the credentials needed to access through a local terminal
+
+Through either method, you will need to acquire the autogenerate key to access Jenkins by issuing ```sudo cat /var/lib/jenkins/secrets/initialAdminPassword```.  This will display the key you will need to paste into the GUI instance on first run.
+
+### Jenkins Graphical User Interface
+
+To access the Jenkins GUI, open a web browser and paste the IP printed out at the end of the **Apply** run with the port 8080 appended.
+
+```bash
+Example:
+http://44.206.220.61:8080
+```
+
+This will display the Jenkins interface prompting you for the key to access Jenkins.  Paste in the value and continue.
+Jenkins will then ask you about installing plugins.  Either option that you select will not impact our current installation as we have already installed all needed plugins during construction of the instance.  Selecting the manual option and cancelling is the quickest way but again, either works.
+
+You are also able to define a user at this  point or skip.  An additional user is not required and can be skipped.  Just keep going until you eventually make it to the Jenkins Dashboard.
+
+### Verify Pipeline
 
 While the configuration will execute based on SCM polling for changes, for initial testing it is recommended that manual testing should occur.
+
+Once you have made your way to the Jenkins Dashboard, select the **Capstone5** project name.  From there, select the Build now link.
+
+This will start the pipeline manually and run the steps:
+
+* Get the code
+* Build the code
+* Run the tests
+* Package the Webapp
+* Build the image
+* Verify local registry
+* Push to local registry
+* Deploy container from docker image
